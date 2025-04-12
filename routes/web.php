@@ -25,7 +25,39 @@ Route::post( "/register", [AuthController::class,"registerPost"])->name("registe
 
 
 //whenever an unauth. person tries to access those views, will be directly redirected to the '/login' by default 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->group(function () {
+//j'ai mis client pour pouvoir accéder à tous les pages avant de bien assigner la tâche de chaque utilisateur de l'application 
+
+    //la liste des réservation faites avec un filtre pour savoir les réservations qui ont été effectuer en ligne
+    Route::get('/reservation/display',[ReservationController::class,'index'])
+    ->name('reservation.liste');
+
+    Route::post('/reservation/destroy/{id}', [ReservationController::class, 'destroy'])
+    ->name('reservation.destroy');
+
+    Route::get('/reservation/{id}/edit',[ReservationController::class,'update'])
+    ->name('reservation.edit');
+    
+    Route::put('/reservation/edit/client/info/{id}',[ReservationController::class,'edit'])
+    ->name('edit.client');
+
+    Route::get('/reservation/client/detail/{id}',[ReservationController::class,'displayClient'])
+    ->name('reservation.client');
+    
+    Route::get('/reservation/{id}/edit/date', [ReservationController::class, 'editDate'])
+    ->name('reservation.editDate');
+    
+    Route::put('/reservation/{id}/update/date', [ReservationController::class, 'updateDate'])
+    ->name('reservation.updateDate');
+        
+    Route::get('/reservation/{id}/paiement', [ReservationController::class, 'afficherPaiement'])
+    ->name('reservation.paiement');
+
+    Route::put('/reservation/{id}/paiement', [ReservationController::class, 'validerPaiement'])
+    ->name('reservation.paiement.valider');
+   
+
+
 
 
     //manip chambres
@@ -63,12 +95,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/reserver',[ReservationController::class,'create'])->name('reserver.post');
 
     Route::post('/reservation/store', [ReservationController::class, 'store'])->name('reservation.store');
-
-    Route::get('/check-client', [ReservationController::class, 'checkClient'])->name('client.search');
-
-    //manip client
-    Route::get('/clients/search', [ClientController::class, 'search'])->name('client.search');
-
 
     //manip categories
     Route::get('/chambre/categorie/', [CategorieController::class,'index'])->name('categorie.index');

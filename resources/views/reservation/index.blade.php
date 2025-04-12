@@ -14,50 +14,60 @@
     <form id="reservationForm" action="{{ route('reservation.store') }}" method="POST">
         @csrf
 
-        <div class="row">
-            <!-- Recherche Client -->
-            <div class="col-md-6">
-                <label for="searchClient" class="form-label">Rechercher un client :</label>
-                <input type="text" id="searchClient" class="form-control" placeholder="Nom ou numéro de téléphone">
-                <div id="clientList" class="list-group"></div>
-            </div>
-
-
             
     <script>
         $(document).ready(function () {
-            // Recherche client en temps réel
-            $('#searchClient').on('keyup', function () {
-                let query = $(this).val();
-                if (query.length > 2) {
-                    $.ajax({
-                        url: "{{ route('client.search') }}",
-                        type: "GET",
-                        data: { query: query },
-                        success: function (data) {
-                            $('#clientList').html(data);
-                        }
-                    });
+            // Afficher/Masquer la liste des services supplémentaires
+            $('#enableServices').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#servicesList').slideDown();
                 } else {
-                    $('#clientList').html('');
+                    $('#servicesList').slideUp();
+                    $('.service-checkbox').prop('checked', false);
+                    updateTotal();
                 }
             });
 
-            // Calcul du total à payer
-            $('.service-checkbox, #dateDeb, #dateFin').on('change', function () {
+            // Calcul du prix total incluant les services
+            $('#chambre_id, #dateDeb, #dateFin, .service-checkbox').on('change', updateTotal);
+            
+            function updateTotal() {
                 let total = 0;
-                $('.service-checkbox:checked').each(function () {
-                    total += parseFloat($(this).data('prix'));
-                });
 
+                // Récupérer le prix de la chambre sélectionnée
+                let selectedChambre = $('#chambre_id option:selected');
+                let chambrePrix = parseFloat(selectedChambre.data('prixNuit')) || 0;
+
+                // Récupérer les dates de début et de fin
                 let dateDeb = new Date($('#dateDeb').val());
                 let dateFin = new Date($('#dateFin').val());
-                let diffDays = (dateFin - dateDeb) / (1000 * 60 * 60 * 24);
-                total += diffDays * 50; // Exemple : 50€ par nuit
 
-                $('#totalPayer').val(total);
+                // Vérifier si les dates sont valides
+                if (dateDeb && dateFin && dateFin >= dateDeb) {
+                    let diffDays = (dateFin - dateDeb) / (1000 * 60 * 60 * 24);
+                    diffDays = Math.max(diffDays, 1); // Minimum une nuit
+                    total += chambrePrix * diffDays;
+                }
+
+                // Ajout des services supplémentaires au total
+                $('.service-checkbox:checked').each(function() {
+                    total += parseFloat($(this).data('price'));
+                });
+
+                // Affichage du prix total avec deux décimales
+                $('#totalPrice').val(total.toFixed(2)); // Met à jour le total à payer
+                $('#totalPayer').val(total.toFixed(2)); // Met à jour le champ caché du total (si nécessaire)
+            }
+
+            // Initialiser le calcul lors du changement de chambre
+            $('#chambre_id').on('change', function() {
+                updateTotal();
             });
+
+            // Calcul initial si le formulaire est déjà rempli
+            updateTotal();
         });
+
     </script>
 
             
@@ -167,7 +177,7 @@
             </label>
         </div>
         
-        <!--pour passer les indormations de la chambre en cachete-->
+        <!--pour passer les informations de la chambre en cachete-->
         <input type="hidden" name="chambres" value="{{json_encode($chambres)}}">
 
         <!-- Liste des services supplémentaires (masquée par défaut) -->
@@ -195,7 +205,7 @@
             <label class="form-label">Mode de paiement :</label>
             <select name="modePaiement" class="form-control">
                 <option value="carte">Carte bancaire</option>
-                <option value="espece">Espèces</option>
+                <option value="cash">Espèces</option>
             </select>
         </div>
 
@@ -225,7 +235,7 @@
                         updateTotal();
                     }
                 });
-        
+        /*
                 // Calcul du prix total incluant les services
                 $('#chambre_id, #dateDeb, #dateFin, .service-checkbox').on('change', updateTotal);
 
@@ -255,29 +265,12 @@
 
                     // Affichage du prix total avec deux décimales
                     $('#totalPrice').val(total.toFixed(2));
-                }
+                }*/
 
 
             });
 
-            // Lorsqu'on clique sur un client suggéré
-            $(document).on('click', '.client-item', function () {
-                $('#nom').val($(this).data('nom'));
-                $('#prenom').val($(this).data('prenom'));
-                $('#pays').val($(this).data('pays'));
-                $('#region').val($(this).data('region'));
-                $('#numTel').val($(this).data('numtel'));
-                $('#typeId').val($(this).data('typeid')).trigger('change');
-
-                if ($(this).data('typeid') === 'CIN') {
-                    $('#numCIN').val($(this).data('cin'));
-                } else {
-                    $('#numPasseport').val($(this).data('passeport'));
-                }
-
-                $('#clientList').html('');
-            });
-
+            
         </script>
         
         

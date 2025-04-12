@@ -39,6 +39,9 @@
                         <input type="password" class="form-control" name="password" required>
                     </div>
 
+                    <input type="hidden" name="userType" value="client">
+                    
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">S'inscrire</button>
                     </div>

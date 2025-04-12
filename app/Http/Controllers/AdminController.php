@@ -37,6 +37,7 @@ class AdminController extends Controller
             'name' => $request->input('nomRec') . ' ' . $request->input('prenomRec'),
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'userType'=>'recep',
         ]);
 
         $recep=new Receptionniste();

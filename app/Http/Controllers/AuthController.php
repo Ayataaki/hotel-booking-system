@@ -39,12 +39,14 @@ class AuthController extends Controller{
             "name"=>["required"],
             "email"=> ["required","email"],
             "password"=> ["required"],
+            "userType" => [ 'in:client,recep,admin'], // adapte ici selon tes rôles
         ]);
-        //on créé un utilisateur
+        //on créé un utilisateur - en tant qu'utilisateur normal de l'application
         $user = new User();
         //on remplit les champs dans la BD
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->userType = $request->userType;
         $user->password = bcrypt($request->password);//crypter le mot de passe
         if( $user->save() ){	
             return redirect("/chambre")->with("success","User created successfuly");

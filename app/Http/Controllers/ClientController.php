@@ -106,31 +106,5 @@ class ClientController extends Controller
         //
     }
 
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-
-        $clients = Client::where('nom', 'LIKE', "%$query%")
-            ->orWhere('prenom', 'LIKE', "%$query%")
-            ->orWhere('numTel', 'LIKE', "%$query%")
-            ->get();
-
-        $html = '';
-        foreach ($clients as $client) {
-            $html .= "<button type='button' class='list-group-item list-group-item-action client-item' 
-                        data-nom='{$client->nom}'
-                        data-prenom='{$client->prenom}'
-                        data-pays='{$client->pays}'
-                        data-region='{$client->region}'
-                        data-numtel='{$client->numTel}'
-                        data-typeid='{$client->typeId}'
-                        data-cin='{$client->numCIN}'
-                        data-passeport='{$client->numPasseport}'
-                    '>{$client->nom} {$client->prenom} - {$client->numTel}</button>";
-        }
-
-        return response()->json($html);
-    }
-
 
 }
