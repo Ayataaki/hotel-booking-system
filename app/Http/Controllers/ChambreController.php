@@ -19,13 +19,13 @@ class ChambreController extends Controller
     public function index(Request $request)
     {
         // Charge la relation avec la catégorie, parce que sinon, on n'arrive pas à lier les chambres avec les catégories
-        $query = Chambre::with('categorie'); 
+        $query = Chambre::with('categorie');
 
         // Filtrer par numéro d'étage si fourni
         if ($request->filled('numEtg')) {
             //si true on va extraire l'étage, sinon ça ne sera pas inclu (null) -> par la méthode GET
             $query->where('NumEtg', $request->numEtg);
-        } 
+        }
 
         // Filtrer par catégorie si sélectionnée
         if ($request->filled('categorie_id')) {
@@ -53,8 +53,8 @@ class ChambreController extends Controller
      */
     public function create()
     {
-        $categories=Categorie::all();//on cherche toutes les cats 
-        return view("chambre.form",["categories"=>$categories]);// on fait passer ces cats pour qu'on puisse les montrer   
+        $categories=Categorie::all();//on cherche toutes les cats
+        return view("chambre.form",["categories"=>$categories]);// on fait passer ces cats pour qu'on puisse les montrer
     }
 
     /**
@@ -81,6 +81,28 @@ class ChambreController extends Controller
         ]);
         //its route : Route::get('/user/{id}', [UserController::class, 'show']);
     }
+
+    /**
+     * Affiche la liste des chambres pour les clients
+     */
+    public function showAll(Request $request)
+    {
+        $query = Chambre::with('categorie');
+
+        // Filtrer par catégorie si fourni
+        if ($request->filled('categorie')) {
+            $query->whereHas('categorie', function($q) use ($request) {
+                $q->where('libelle', $request->categorie);
+            });
+        }
+
+        // Récupérer les chambres filtrées
+        $chambres = $query->get();
+
+        // Retourner la vue avec les chambres
+        return view('client.chambres', compact('chambres'));
+    }
+
 
     /**
      * Show the form for editing the specified resource.

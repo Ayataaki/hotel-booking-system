@@ -11,22 +11,27 @@ use App\Http\Controllers\ChambreController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SupplementaireController;
+// Le nouveau qu'Anas a crée :
+use App\Http\Controllers\HomeController;
 
-Route::get("/", function () {   return view("welcome");});
+// Routes publiques pour l'interface client
+Route::get("/", [HomeController::class, "index"])->name("home");
+Route::get("/chambres", [ChambreController::class, "showAll"])->name("chambres");
+Route::get("/reservation", [ReservationController::class, "createForm"])->name("reservation");
 
+
+// Routes d'authentification
+// Route::get("/", function () {   return view("welcome");});
 Route::get( "/login", [AuthController::class,"login"])->name("login");
-
 Route::post( "/login", [AuthController::class,"loginPost"])->name("login.post");
-
 Route::get("/register", [AuthController::class,"register"])->name("register");
-
 Route::post( "/register", [AuthController::class,"registerPost"])->name("register.post");
 
 
 
-//whenever an unauth. person tries to access those views, will be directly redirected to the '/login' by default 
+//whenever an unauth. person tries to access those views, will be directly redirected to the '/login' by default
 Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->group(function () {
-//j'ai mis client pour pouvoir accéder à tous les pages avant de bien assigner la tâche de chaque utilisateur de l'application 
+//j'ai mis client pour pouvoir accéder à tous les pages avant de bien assigner la tâche de chaque utilisateur de l'application
 
     //la liste des réservation faites avec un filtre pour savoir les réservations qui ont été effectuer en ligne
     Route::get('/reservation/display',[ReservationController::class,'index'])
@@ -37,25 +42,25 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
 
     Route::get('/reservation/{id}/edit',[ReservationController::class,'update'])
     ->name('reservation.edit');
-    
+
     Route::put('/reservation/edit/client/info/{id}',[ReservationController::class,'edit'])
     ->name('edit.client');
 
     Route::get('/reservation/client/detail/{id}',[ReservationController::class,'displayClient'])
     ->name('reservation.client');
-    
+
     Route::get('/reservation/{id}/edit/date', [ReservationController::class, 'editDate'])
     ->name('reservation.editDate');
-    
+
     Route::put('/reservation/{id}/update/date', [ReservationController::class, 'updateDate'])
     ->name('reservation.updateDate');
-        
+
     Route::get('/reservation/{id}/paiement', [ReservationController::class, 'afficherPaiement'])
     ->name('reservation.paiement');
 
     Route::put('/reservation/{id}/paiement', [ReservationController::class, 'validerPaiement'])
     ->name('reservation.paiement.valider');
-   
+
 
 
 
@@ -69,7 +74,7 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
 
     Route::get('/chambre/{id}/edit',[ChambreController::class,'edit'])->name('chambre.edit');
 
-    Route::put('/chambre/{id}', [ChambreController::class, 'update'])->name('chambre.update');    
+    Route::put('/chambre/{id}', [ChambreController::class, 'update'])->name('chambre.update');
 
     Route::post('/chambre/{id}', [ChambreController::class, 'destroy'])->name('chambre.destroy');
 
@@ -82,7 +87,7 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
 
     Route::get('/supp/{id}/edit',[SupplementaireController::class,'edit'])->name('supp.edit');
 
-    Route::put('/supp/{id}', [SupplementaireController::class, 'update'])->name('supp.update');    
+    Route::put('/supp/{id}', [SupplementaireController::class, 'update'])->name('supp.update');
 
     Route::post('/supp/{id}', [SupplementaireController::class, 'destroy'])->name('supp.destroy');
 
@@ -101,8 +106,8 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
 
     Route::get('/chambre/categorie/add', [CategorieController::class,'store'])->name("categorie.add");
 
-    Route::post('/chambre/categorie/form', [CategorieController::class,'create'])->name('categorie.form');  
-    
+    Route::post('/chambre/categorie/form', [CategorieController::class,'create'])->name('categorie.form');
+
     Route::get('/categorie/{id}/edit',[CategorieController::class,'edit'])->name('categorie.edit');
 
     Route::delete('/categorie/{id}', [CategorieController::class, 'destroy'])->name('categorie.destroy');
@@ -116,7 +121,7 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
 
 
 
-    //log out 
+    //log out
     Route::post( "/logout", [AuthController::class,"logoutPost"])->name("logout.post");
 
 });

@@ -96,7 +96,7 @@ class ReservationController extends Controller
                     'Passeport' => $request->numPasseport,
                 ]);
             }
-            
+
         }
 
         $receptionniste = \App\Models\Receptionniste::where('user_id', Auth::id())->first();
@@ -104,7 +104,7 @@ class ReservationController extends Controller
         if (!$receptionniste) {
             return back()->withErrors("Aucun réceptionniste associé à cet utilisateur.");
         }
-        
+
 
         $reservation = Reservation::create([
             'dateDeb' => $request->dateDeb,
@@ -123,7 +123,7 @@ class ReservationController extends Controller
             $ch=Chambre::where('id', $chambreId)->first();
             $ch->update(['reservation_id' => $reservation->id,'status'=>'1']); //update the status
         }
-        
+
         $paiement = Paiement::create([
             'montant'=>$request->totalPayer,
             'mode'=>$request->modePaiement,
@@ -161,7 +161,7 @@ class ReservationController extends Controller
             'CIN' => 'nullable|required_if:typeId,CIN|string',
             'Passeport' => 'nullable|required_if:typeId,passeport|string',
         ]);
-        
+
         $client = Client::findOrFail($id);
 
         //distinction entre ceux qui ont déclaré une CIN et num Passeport, une fois le type identifié , on ne peut pas le changer
@@ -169,7 +169,7 @@ class ReservationController extends Controller
             $client->update($request->only(['nom', 'prenom','pays','region', 'numTel','CIN']));
         }
         else{
-            $client->update($request->only(['nom', 'prenom','pays','region', 'numTel','passeport']));  
+            $client->update($request->only(['nom', 'prenom','pays','region', 'numTel','passeport']));
         }
 
         $client->save();
@@ -216,6 +216,23 @@ class ReservationController extends Controller
         return view("reservation.displayClient",compact("client"));
     }
 
+    /**
+     * Affiche le formulaire de réservation pour les clients
+     */
+    public function createForm()
+    {
+        // Récupérer toutes les chambres
+        $chambres = Chambre::with('categorie')->get();
+
+        // Récupérer les services supplémentaires
+        $supplementaires = Supplementaire::all();
+
+        return view('client.reservation', [
+            'chambres' => $chambres,
+            'supplementaires' => $supplementaires
+        ]);
+    }
+
 
     public function editDate($id)
     {
@@ -232,7 +249,7 @@ class ReservationController extends Controller
         $countAmount=0;
         foreach($chambres as $chambre){
             $countAmount+=$chambre->prixNuit;
-        }   
+        }
         return $duree*$countAmount;
 
     }
@@ -247,11 +264,11 @@ class ReservationController extends Controller
         $nouvelleDate=$request->dateFin;
         $reservation = Reservation::findOrFail($id);
         $reservation->dateFin =  $nouvelleDate;
-        
+
         if($nouvelleDate==$ancienneDate){
             return redirect()->route('reservation.liste');
         }
-        else{            
+        else{
             $id=$request->id;
             $additional=$this->additionalPriceToPay($id,$ancienneDate,$nouvelleDate);
 
@@ -261,8 +278,8 @@ class ReservationController extends Controller
             'nouvelleDate' => $nouvelleDate,
             'additional'=>$additional,
             ]);
-        }    
-        
+        }
+
     }
 
     public function afficherPaiement($id, Request $request)
@@ -284,20 +301,20 @@ class ReservationController extends Controller
             'montant' => 'required|numeric',
             'nouvelleDate' => 'required|date|after:dateDeb',  // Ajout de la validation pour 'nouvelleDate'
         ]);
-        
-    
+
+
         // Trouver la réservation
         $reservation = Reservation::findOrFail($id);
-    
+
         $additionalPrice=$request->montant;
         // Ajouter le montant payé au solde de la réservation
         $reservation->soldePayer += $additionalPrice;
-    
+
         // Si le paiement est complet, mettre à jour les dates de réservation
-        $reservation->dateFin = $request->nouvelleDate; 
-        $reservation->totalPayer += $request->montant; 
+        $reservation->dateFin = $request->nouvelleDate;
+        $reservation->totalPayer += $request->montant;
         $reservation->save();
-        
+
 
         $paiement = Paiement::create([
             'montant'=>$additionalPrice,
@@ -310,7 +327,7 @@ class ReservationController extends Controller
     }
 
 
-    
+
 
 
 }

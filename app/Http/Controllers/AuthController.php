@@ -11,11 +11,12 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class AuthController extends Controller{
     public function login(){
-        return view("auth.login");
+        // return view("auth.login");
+        return view("client.login");  // Au lieu de "auth.login"
     }
 
     public function loginPost(Request $request){
-        //validation des données et on exige que l'email doit avoir une forme valide 
+        //validation des données et on exige que l'email doit avoir une forme valide
         $request->validate([
             "email"=> ["required","email"],
             "password"=> ["required"],
@@ -32,7 +33,8 @@ class AuthController extends Controller{
         return redirect("/login")->with("error","Try again");
     }
     public function register(){
-        return view("auth.register");
+        // return view("auth.register");
+        return view("client.register");  // Au lieu de "auth.register"
     }
     public function registerPost(Request $request){
         $request->validate([
@@ -48,14 +50,14 @@ class AuthController extends Controller{
         $user->email = $request->email;
         $user->userType = $request->userType;
         $user->password = bcrypt($request->password);//crypter le mot de passe
-        if( $user->save() ){	
+        if( $user->save() ){
             return redirect("/chambre")->with("success","User created successfuly");
         }
         return redirect("/register")->with("error","Failed to create an account");
     }
     public function logoutPost(Request $request): RedirectResponse{
         // on supprime l'auth, mais la session est tjrs là
-        Auth::logout();    
+        Auth::logout();
 
         //suppression des données stockées dans la session
         $request->session()->invalidate();
