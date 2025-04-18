@@ -9,7 +9,7 @@
 </head>
 <body class="container py-4">
 
-    <h2 class="text-center mb-4">Formulaire de réservation</h2>
+    <h2 class="text-center mb-4">Formulaire de remplissage des informations pour une réservation en ligne</h2>
 
     <form action="{{ route('client.form.create') }}" method="POST">
         @csrf
@@ -66,7 +66,7 @@
             <!-- Champ pour Passeport -->
             <div class="col-md-6 mt-3" id="passportField" style="display: none;">
                 <label class="form-label">Numéro Passeport :</label>
-                <input type="text" id="Passeport" name="Passeport" class="form-control">
+                <input type="text" id="passeport" name="passeport" class="form-control">
             </div>
         </div>
 

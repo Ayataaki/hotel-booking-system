@@ -33,10 +33,21 @@ class ReservationController extends Controller
             'chambres.*' => 'exists:chambres,id' // On vérifie que chaque ID existe dans la table chambres
         ]);
 
-        // Récupérer les chambres sélectionnées depuis la base de données
-        $chambres = Chambre::whereIn('id', $validated['chambres'])->get();
+
+        $chambresIds = $validated['chambres'];
+
+        // Récupérer les chambres correspondantes avec leur prix par nuit
+        $chambres = Chambre::whereIn('id', $chambresIds)->get();
+
+        $total = 0;
+
+        foreach ($chambres as $chambre) {
+            // Ajoute le prix de chaque chambre au total
+            $total += $chambre->prixNuit;
+        }
+
         $supplementaires = Supplementaire :: all();
-        return view("reservation.index",["supplementaires"=> $supplementaires,"chambres"=> $chambres]);
+        return view("reservation.index",["supplementaires"=> $supplementaires,"chambres"=> $chambres,"total"=>$total]);
     }
 
     /**
@@ -307,10 +318,7 @@ class ReservationController extends Controller
         ]);
 
         return redirect()->route('reservation.liste')->with('success', 'Paiement effectué avec succès.');
-    }
-
-
-    
+    }  
 
 
 }

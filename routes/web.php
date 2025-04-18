@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\StripeController;
 use App\Http\Controllers\ChambreController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ReservationController;
@@ -89,12 +90,24 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
     //manip client
     Route::get('/client/form',[ClientController::class,'show'])->name('client.form.reservation');
 
-    Route::post('/client/form/create',[ClientController::class,'store'])->name('client.form.create');
+    Route::post('/client/form/create',[ClientController::class,'store'])
+    ->name('client.form.create');
 
     //manip reservations
     Route::post('/reserver',[ReservationController::class,'create'])->name('reserver.post');
 
     Route::post('/reservation/store', [ReservationController::class, 'store'])->name('reservation.store');
+
+
+    //strip's route
+    Route::get('/checkout', [StripeController::class, 'checkout'])
+    ->name('payment.checkout');
+    Route::post('/session', [StripeController::class, 'session'])
+    ->name('payment.session');
+    Route::get('/success', [StripeController::class, 'success'])
+    ->name('payment.success');
+    Route::get('/cancel', [StripeController::class, 'cancel'])
+    ->name('payment.cancel');
 
     //manip categories
     Route::get('/chambre/categorie/', [CategorieController::class,'index'])->name('categorie.index');

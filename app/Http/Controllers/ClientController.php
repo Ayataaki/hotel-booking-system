@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
@@ -32,46 +33,60 @@ class ClientController extends Controller
     public function store(Request $request)
     {
 
-        $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'pays'=> 'required|string|max:255',
-            'region'=> 'required|string|max:255',
-            'numTel'=> 'required|string|max:255',
-            'typeId'=> 'required|in:CIN,Passeport', // Le type d'identité doit être CIN ou Passeport
-            'CIN' => 'nullable|required_if:typeId,CIN|string|max:255', // Si le type est CIN, le CIN est requis
-            'numero_passeport' => 'nullable|required_if:typeId,Passeport|string|max:255', // Si le type est Passeport, le numéro de passeport est requis
-        ]);
+    $request->validate([
+        'nom' => 'required|string',
+        'prenom' => 'required|string',
+        'pays' => 'nullable|string',
+        'region' => 'nullable|string',
+        'numTel' => 'required|string',
+        'typeId' => 'required|in:CIN,passeport',
+        'CIN' => 'nullable|required_if:typeId,CIN|string',
+        'passeport' => 'nullable|required_if:typeId,passeport|string',
+    ]);
 
-        $nom=$request->input('nom');
-        $prenom=$request->input('prenom');        
-        $pays=$request->input('pays');        
-        $region=$request->input('region');        
-        $numTel=$request->input('numTel');        
-        $typeId=$request->input('typeId');        
-        $CIN = $request->input('CIN');
-        $passeport = $request->input('passeport');
-        //avant d'enregistrer ça , il faut s'assurer que ça n'existe pas dans la bd
-        $clientTest = Client::where('numTel', $numTel)
-        ->where('CIN', $CIN)
-        ->where('passeport', $passeport)
-        ->first();
-        if(!$clientTest){
-            $newClient = new Client();
-            $newClient->nom =$nom;
-            $newClient->prenom = $prenom;
-            $newClient->numTel = $numTel;
-            $newClient->pays = $pays;
-            $newClient->region = $region;
-            $newClient->typeId = $typeId;
-            $newClient->CIN = $CIN;
-            $newClient->passeport = $passeport;          
-            $newClient->save();
-        }
-        //en tout cas on doit rediriger vers le paiement 
-        return redirect('/chambre');
-
+    // Vérification de l'existence du client selon le type d'identité
+    if ($request->typeId == 'CIN') {
+        $client = Client::where('CIN', $request->CIN)->first();        
+    } else {
+        $client = Client::where('passeport', $request->passeport)->first();
     }
+
+    // Si le client n'existe pas, on le crée
+    if (!$client) {
+        if ($request->typeId == 'CIN') {
+            $client = Client::create([
+                'nom' => $request->nom,
+                'prenom' => $request->prenom,
+                'pays' => $request->pays,
+                'region' => $request->region,
+                'numTel' => $request->numTel,
+                'typeId' => $request->typeId,
+                'CIN' => $request->CIN,  // Ajout du CIN
+                'utilisateur_id' => Auth::id(),// parce que le client ne pourra remplir le formulaire que s'il est authentifié
+            ]);
+        } else {
+            $client = Client::create([
+                'nom' => $request->nom,
+                'prenom' => $request->prenom,
+                'pays' => $request->pays,
+                'region' => $request->region,
+                'numTel' => $request->numTel,
+                'typeId' => $request->typeId,
+                'passeport' => $request->passeport,  
+                'utilisateur_id' => Auth::id(),
+            ]);
+        }
+    }else{
+        //si jamais le client à reserver sur place et il veut cette fois ci réserver en ligne, la condition pour procéder vers le formulaire des informations était l'authentification et donc on aura à mettre à jour l'id d'utilisateur, comme suit
+        $client->update(['utilisateur_id'=>Auth::id()]);
+    }
+
+
+    // Redirection après la création
+    return redirect('/chambre');
+}
+
+
 
     /**
      * Display the specified resource.
