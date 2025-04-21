@@ -293,6 +293,7 @@
       <h2 class="text-3xl font-bold text-center font-['Playfair_Display'] text-[#6d4927] mb-4 animated-fade">Nos Chambres Vedettes</h2>
       <p class="text-center text-[#95714F] max-w-2xl mx-auto mb-12 animated-fade">Découvrez nos espaces de vie élégants et confortables, conçus pour rendre votre séjour inoubliable.</p>
 
+      
       <div class="grid md:grid-cols-3 gap-8">
         <!-- Chambre Deluxe -->
         <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl border border-transparent hover:border-[#95714F] animated-fade">

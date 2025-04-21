@@ -17,8 +17,18 @@ use App\Http\Controllers\HomeController;
 // Routes publiques pour l'interface client
 Route::get("/", [HomeController::class, "index"])->name("home");
 Route::get("/chambres", [ChambreController::class, "showAll"])->name("chambres");
-Route::get("/reservation", [ReservationController::class, "createForm"])->name("reservation");
+//pour réserver le client doit être authentifier
+//Route::get("/reservation", [ReservationController::class, "createForm"])->name("reservation");
 
+// Routes pour les chambres
+Route::get('/chambres', [ChambreController::class, 'index'])->name('chambres');
+//Route::get('/chambres/{id}', [ChambreController::class, 'show'])->name('chambres.show');
+Route::post('/chambres/check-availability', [ChambreController::class, 'checkAvailability'])->name('chambres.check-availability');
+
+//manip reservations
+//je ne pense pas que cette route marche
+
+//Route::post('/reservation/store', [ReservationController::class, 'storeOnLine'])->name('reservation.store.online');
 
 // Routes d'authentification
 // Route::get("/", function () {   return view("welcome");});
@@ -28,10 +38,19 @@ Route::get("/register", [AuthController::class,"register"])->name("register");
 Route::post( "/register", [AuthController::class,"registerPost"])->name("register.post");
 
 
+Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile')->middleware('auth');
 
 //whenever an unauth. person tries to access those views, will be directly redirected to the '/login' by default
 Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->group(function () {
 //j'ai mis client pour pouvoir accéder à tous les pages avant de bien assigner la tâche de chaque utilisateur de l'application
+
+Route::get('/chambres/disponibles', [ChambreController::class, 'getChambresDisponibles']);
+Route::get('/chambres/{id}', [ChambreController::class, 'getChambre']);
+
+
+    Route::get("/reservation", [ReservationController::class, "createForm"])->name("reservation");
+
+    Route::post('/reservation/store', [ReservationController::class, 'storeOnLine'])->name('reservation.store.online');
 
     //la liste des réservation faites avec un filtre pour savoir les réservations qui ont été effectuer en ligne
     Route::get('/reservation/display',[ReservationController::class,'index'])
@@ -42,6 +61,10 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
 
     Route::get('/reservation/{id}/edit',[ReservationController::class,'update'])
     ->name('reservation.edit');
+
+    //Route::get("/reservation", [ReservationController::class, "createForm"])
+    //->name("reservation");
+
 
     Route::put('/reservation/edit/client/info/{id}',[ReservationController::class,'edit'])
     ->name('edit.client');
@@ -99,7 +122,7 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
     //manip reservations
     Route::post('/reserver',[ReservationController::class,'create'])->name('reserver.post');
 
-    Route::post('/reservation/store', [ReservationController::class, 'store'])->name('reservation.store');
+    //Route::post('/reservation/store', [ReservationController::class, 'store'])->name('reservation.store');
 
     //manip categories
     Route::get('/chambre/categorie/', [CategorieController::class,'index'])->name('categorie.index');

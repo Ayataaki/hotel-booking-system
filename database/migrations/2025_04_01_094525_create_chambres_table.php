@@ -25,6 +25,9 @@ return new class extends Migration
             //cette approche provoque un problème
             //$table->unsignedBigInteger('reservation_id')->nullable();
             //$table->foreign('reservation_id')->references('id')->on('reservations')->onUpdate('cascade')->onDelete('set null');
+
+            //j'ai ajouté un nouveau champ image & capacite dans cette table , voire le fichier add_image_to_chambres_table
+
             $table->timestamps();
         });
     }

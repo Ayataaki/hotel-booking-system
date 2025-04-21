@@ -19,16 +19,28 @@
         <a href="{{ route('register') }}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Register</a>
         <span class="text-[#95714F]">|</span>
         <a href="{{ route('login') }}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Login</a>
-      @else
-        <span class="text-[#95714F] text-sm">Bonjour, {{ Auth::user()->name }}</span>
+      @endguest
+      @auth
+      <span class="text-[#95714F] text-sm">Bonjour, {{ Auth::user()->name }}</span>
+      <span class="text-[#95714F]">|</span>
+      <!--<a href="{{-- route('profile') --}}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Profile</a>-->
+      <a href="#" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Profile</a>
+      <span class="text-[#95714F]">|</span>
+      <a href="{{-- route('logout') --}}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">
+        Déconnexion
+      </a>
+      <form id="logout-form" action="{{ route('logout.post') }}" method="POST" class="hidden">
+        @csrf
+      </form>
+        <!--<span class="text-[#95714F] text-sm">Bonjour, {{-- Auth::user()->name --}}</span>
         <span class="text-[#95714F]">|</span>
-        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">
+        <a href="{{-- route('logout') --}}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">
           Déconnexion
         </a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-          @csrf
-        </form>
-      @endguest
+        <form id="logout-form" action="{{-- route('logout') --}}" method="POST" class="hidden">
+          @--csrf
+        </form>-->
+      @endauth
     </div>
 
     <!-- Burger Menu -->

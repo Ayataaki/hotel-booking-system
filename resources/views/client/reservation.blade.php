@@ -95,8 +95,11 @@
   // Informations de contact
   firstName: '',
   lastName: '',
-  email: '',
+  //email: '',
   phone: '',
+  typeId:'',
+  CIN:'',
+  passeport:'',
   specialRequests: '',
 
   // Méthodes
@@ -204,17 +207,17 @@
   },
 
   validateStep3() {
-    if (!this.firstName || !this.lastName || !this.email || !this.phone) {
+    if (!this.firstName || !this.lastName || !this.phone) {
       alert('Veuillez compléter tous les champs obligatoires');
       return false;
     }
 
     // Validation basique de l'email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.email)) {
-      alert('Veuillez entrer une adresse email valide');
-      return false;
-    }
+    //const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //if (!emailRegex.test(this.email)) {
+    //  alert('Veuillez entrer une adresse email valide');
+    //  return false;
+    //}
 
     return true;
   },
@@ -242,6 +245,7 @@
     }, 1500);
   }
 }">
+
   <!-- Indicateur d'étape -->
   <div class="mb-10">
     <div class="flex justify-between mb-2">
@@ -292,6 +296,10 @@
     </div>
   </div>
 
+  
+<form id="reservationForm" action="{{ route('reservation.store.online') }}" method="POST">
+  @csrf
+
   <!-- Contenu du formulaire -->
   <div class="bg-white shadow-xl rounded-2xl p-6 md:p-8">
     <!-- Étape 1: Dates et nombre de personnes -->
@@ -301,14 +309,14 @@
       <div class="grid md:grid-cols-2 gap-6 mb-8">
         <div>
           <label for="arrival-date" class="block text-sm font-medium mb-2">Date d'arrivée</label>
-          <input type="date" id="arrival-date" x-model="startDate"
+          <input type="date" id="arrival-date" name="dateDeb" x-model="startDate"
                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]"
                :min="new Date().toISOString().split('T')[0]">
         </div>
 
         <div>
           <label for="departure-date" class="block text-sm font-medium mb-2">Date de départ</label>
-          <input type="date" id="departure-date" x-model="endDate"
+          <input type="date" id="departure-date" name="dateFin" x-model="endDate"
                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]"
                :min="startDate || new Date().toISOString().split('T')[0]">
         </div>
@@ -351,7 +359,7 @@
       </div>
 
       <div class="flex justify-end">
-        <button @click="nextStep" class="px-6 py-3 bg-[#95714F] text-white font-medium rounded-lg hover:bg-[#6d4927] transition-colors duration-300 flex items-center">
+        <button type="button" @click="nextStep" class="px-6 py-3 bg-[#95714F] text-white font-medium rounded-lg hover:bg-[#6d4927] transition-colors duration-300 flex items-center">
           Continuer
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -405,14 +413,14 @@
       </div>
 
       <div class="flex justify-between">
-        <button @click="prevStep" class="px-6 py-3 border border-[#95714F] text-[#95714F] font-medium rounded-lg hover:bg-[#F3ECE3] transition-colors duration-300 flex items-center">
+        <button type="button" @click="prevStep" class="px-6 py-3 border border-[#95714F] text-[#95714F] font-medium rounded-lg hover:bg-[#F3ECE3] transition-colors duration-300 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
           </svg>
           Retour
         </button>
 
-        <button @click="nextStep" class="px-6 py-3 bg-[#95714F] text-white font-medium rounded-lg hover:bg-[#6d4927] transition-colors duration-300 flex items-center">
+        <button type="button" @click="nextStep" class="px-6 py-3 bg-[#95714F] text-white font-medium rounded-lg hover:bg-[#6d4927] transition-colors duration-300 flex items-center">
           Continuer
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -425,32 +433,61 @@
     <div x-show="step === 3" class="fade-in" x-cloak>
       <h2 class="text-2xl font-bold text-[#6d4927] mb-6">Vos informations et options</h2>
 
-      <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="grid md:grid-cols-2 gap-6 divmb-8">
         <div>
           <label for="first-name" class="block text-sm font-medium mb-2">Prénom*</label>
-          <input type="text" id="first-name" x-model="firstName" placeholder="Votre prénom"
+          <input type="text" id="first-name" name="prenom" x-model="firstName" placeholder="Votre prénom"
                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
         </div>
 
         <div>
           <label for="last-name" class="block text-sm font-medium mb-2">Nom*</label>
-          <input type="text" id="last-name" x-model="lastName" placeholder="Votre nom"
+          <input type="text" id="last-name" name="nom" x-model="lastName" placeholder="Votre nom"
                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
         </div>
-
-        <div>
-          <label for="email" class="block text-sm font-medium mb-2">Email*</label>
-          <input type="email" id="email" x-model="email" placeholder="votre@email.com"
-               class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+        
+        <div class="col-md-6">
+          <label for="typeId" class="form-label">Type ID :</label>
+          <select name="typeId" id="typeId" x-model="typeId" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+              <option value="">Sélectionnez un type</option>
+              <option value="CIN">CIN</option>
+              <option value="passeport">Passeport</option>
+          </select>
         </div>
-
-        <div>
-          <label for="phone" class="block text-sm font-medium mb-2">Téléphone*</label>
-          <input type="tel" id="phone" x-model="phone" placeholder="Votre numéro de téléphone"
-               class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
-        </div>
+  
+      <!-- Champ pour CIN -->
+      <div class="col-md-6 mt-3" x-show="typeId === 'CIN'">
+          <label class="form-label">Numéro CIN :</label>
+          <input type="text" id="CIN" name="CIN" x-model="CIN" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+      </div>
+  
+      <!-- Champ pour Passeport -->
+      <div class="col-md-6 mt-3" x-show="typeId === 'passeport'">
+          <label class="form-label">Numéro Passeport :</label>
+          <input type="text" id="Passeport" name="passeport" x-model="passeport" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
       </div>
 
+        <!--j'ai enlevé le champ email parce que ça sera stocké par le form de l'authentification-->
+
+      <div>
+        <label for="phone" class="block text-sm font-medium mb-2">Téléphone*</label>
+        <input type="tel" id="phone" name="numTel" x-model="phone" placeholder="Votre numéro de téléphone"
+             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+      </div>
+
+      <div>
+        <label for="pays" class="block text-sm font-medium mb-2">Pays*</label>
+        <input type="text" id="pays" name="pays"  placeholder="Votre pays"
+             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+      </div>
+      
+      <div>
+        <label for="region" class="block text-sm font-medium mb-2">Région*</label>
+        <input type="text" id="region" name="region"  placeholder="Votre région"
+             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+      </div>
+
+      <!--to check later-->
       <div class="mb-8">
         <label for="special-requests" class="block text-sm font-medium mb-2">Demandes spéciales</label>
         <textarea id="special-requests" x-model="specialRequests" rows="3" placeholder="Précisez toute demande particulière..."
@@ -487,20 +524,21 @@
       </div>
 
       <div class="flex justify-between">
-        <button @click="prevStep" class="px-6 py-3 border border-[#95714F] text-[#95714F] font-medium rounded-lg hover:bg-[#F3ECE3] transition-colors duration-300 flex items-center">
+        <button type="button" @click="prevStep" class="px-6 py-3 border border-[#95714F] text-[#95714F] font-medium rounded-lg hover:bg-[#F3ECE3] transition-colors duration-300 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
           </svg>
           Retour
         </button>
 
-        <button @click="nextStep" class="px-6 py-3 bg-[#95714F] text-white font-medium rounded-lg hover:bg-[#6d4927] transition-colors duration-300 flex items-center">
+        <button type="button" @click="nextStep" class="px-6 py-3 bg-[#95714F] text-white font-medium rounded-lg hover:bg-[#6d4927] transition-colors duration-300 flex items-center">
           Continuer
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
           </svg>
         </button>
       </div>
+    </div>
     </div>
 
     <!-- Étape 4: Paiement et récapitulatif -->
@@ -557,6 +595,7 @@
                 <div class="flex justify-between font-bold text-lg text-[#6d4927]">
                   <span>Total</span>
                   <span x-text="formatPrice(calculateTotalPrice())"></span>
+                  <input type="hidden" name="totalPayer" x-bind:value="calculateTotalPrice()">
                 </div>
               </div>
             </template>
@@ -612,20 +651,23 @@
       </div>
 
       <div class="flex justify-between mt-8">
-        <button @click="prevStep" class="px-6 py-3 border border-[#95714F] text-[#95714F] font-medium rounded-lg hover:bg-[#F3ECE3] transition-colors duration-300 flex items-center">
+        <button type="button" @click="prevStep" class="px-6 py-3 border border-[#95714F] text-[#95714F] font-medium rounded-lg hover:bg-[#F3ECE3] transition-colors duration-300 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
           </svg>
           Retour
         </button>
 
-        <button @click="submitReservation" class="px-6 py-3 bg-[#95714F] text-white font-medium rounded-lg hover:bg-[#6d4927] transition-colors duration-300">
+        <button type="submit" @click="submitReservation" class="px-6 py-3 bg-[#95714F] text-white font-medium rounded-lg hover:bg-[#6d4927] transition-colors duration-300">
           Confirmer et payer
         </button>
       </div>
     </div>
   </div>
+
+</form>
 </section>
+
 
 <!-- Section FAQ -->
 <section class="py-16 px-4 max-w-5xl mx-auto bg-[#F3ECE3] rounded-2xl my-16">

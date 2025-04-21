@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\Client;
 use App\Models\Chambre;
 use App\Models\Paiement;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use App\Models\Supplementaire;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
@@ -16,12 +17,232 @@ class ReservationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+     public function index(Request $request)
+    {
+        // Récupérer les chambres disponibles
+        $chambres = Chambre::where('status', 0)->with('categorie')->get();
+        
+        // Récupérer les services supplémentaires
+        $supplements = Supplementaire::all();
+        
+        // Si un ID de chambre est passé dans l'URL, le pré-sélectionner
+        $chambreId = $request->query('chambre');
+        
+        return view('reservation', [
+            'chambres' => $chambres,
+            'supplements' => $supplements,
+            'chambreId' => $chambreId
+        ]);
+    }
+    
+    /**
+     * Enregistre une nouvelle réservation
+     */
+    
+     /**
+ * Enregistre une nouvelle réservation
+ */
+public function store(Request $request)
+{
+    // Valider les données du formulaire
+    $validated = $request->validate([
+        'dateDeb' => 'required|date',
+        'dateFin' => 'required|date|after:dateDeb',
+        'nom' => 'required|string',
+        'prenom' => 'required|string',
+        'numTel' => 'required|string',
+        'pays' => 'required|string',
+        'region' => 'required|string',
+        'totalPayer' => 'required|numeric',
+        // Ajoutez les validations pour d'autres champs si nécessaire
+    ]);
+    
+    try {
+        DB::beginTransaction();
+        
+        // Créer la réservation
+        $reservation = new Reservation();
+        $reservation->dateDeb = $request->dateDeb;
+        $reservation->dateFin = $request->dateFin;
+        $reservation->nom = $request->nom;
+        $reservation->prenom = $request->prenom;
+        $reservation->numTel = $request->numTel;
+        $reservation->pays = $request->pays;
+        $reservation->region = $request->region;
+        $reservation->totalPayer = $request->totalPayer;
+        
+        // Si l'utilisateur est connecté, associer la réservation à son compte
+        if (Auth::check()) {
+            $reservation->user_id = Auth::id();
+        }
+        
+        // Si un ID de chambre est spécifié
+        if ($request->has('chambre_id')) {
+            $chambre = Chambre::findOrFail($request->chambre_id);
+            $reservation->chambre_id = $chambre->id;
+            
+            // Mettre à jour le statut de la chambre comme occupée
+            $chambre->status = 1; // 1 = occupée
+            $chambre->save();
+        }
+        
+        // Enregistrer la réservation
+        $reservation->save();
+        
+        // Traiter les suppléments sélectionnés
+        if ($request->has('supplements')) {
+            foreach ($request->supplements as $id => $value) {
+                if ($value == 1) {
+                    // Trouver le supplément pour obtenir son tarif
+                    $supplement = Supplementaire::findOrFail($id);
+                    
+                    // Créer une entrée dans la table posséder
+                    DB::table('posseders')->insert([
+                        'reservation_id' => $reservation->id,
+                        'supplementaire_id' => $id,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+        }
+        
+        DB::commit();
+        
+        // Redirection vers une page de confirmation
+        return redirect()->route('reservation.confirmation', ['id' => $reservation->id])
+            ->with('success', 'Votre réservation a été enregistrée avec succès!');
+            
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        // En cas d'erreur, rediriger avec un message d'erreur
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Une erreur est survenue lors de l\'enregistrement de votre réservation: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Affiche la page de confirmation de réservation
+ */
+public function confirmation($id)
+{
+    // Récupérer la réservation avec ses suppléments
+    $reservation = Reservation::with(['chambre', 'chambre.categorie', 'supplements'])->findOrFail($id);
+    
+    return view('reservation.confirmation', compact('reservation'));
+}
+
+/**
+ * Affiche la liste des réservations de l'utilisateur connecté
+ */
+public function mesReservations()
+{
+    // Vérifier si l'utilisateur est connecté
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+    
+    // Récupérer les réservations de l'utilisateur avec les relations
+    $reservations = Reservation::with(['chambre', 'supplements'])
+        ->where('user_id', Auth::id())
+        ->orderBy('created_at', 'desc')
+        ->get();
+        
+    return view('reservation.mes-reservations', compact('reservations'));
+}
+
+/**
+ * Annule une réservation
+ */
+
+ 
+
+/**
+ * Affiche la page de confirmation de réservation
+ */
+/* public function confirmation($id)
+{
+    // Récupérer la réservation avec ses suppléments
+    $reservation = Reservation::with(['chambre', 'chambre.categorie', 'supplements'])->findOrFail($id);
+    
+    return view('reservation.confirmation', compact('reservation'));
+} */
+    public function annuler($id)
+{
+    try {
+        DB::beginTransaction();
+        
+        // Récupérer la réservation
+        $reservation = Reservation::findOrFail($id);
+        
+        // Vérifier si l'utilisateur est autorisé à annuler cette réservation
+        if (Auth::id() != $reservation->user_id) {
+            return redirect()->back()->with('error', 'Vous n\'êtes pas autorisé à annuler cette réservation.');
+        }
+        
+        // Vérifier si la réservation peut être annulée (règles d'annulation)
+        $dateDebut = \Carbon\Carbon::parse($reservation->dateDeb);
+        $today = \Carbon\Carbon::today();
+        $delaiAnnulation = 2; // 48 heures
+        
+        if ($dateDebut->diffInDays($today) < $delaiAnnulation) {
+            return redirect()->back()->with('error', 'Les réservations ne peuvent être annulées que 48 heures avant la date d\'arrivée.');
+        }
+        
+        // Libérer la chambre
+        if ($reservation->chambre) {
+            $chambre = $reservation->chambre;
+            $chambre->status = 0; // 0 = disponible
+            $chambre->save();
+        }
+        
+        // Supprimer les relations avec les suppléments
+        DB::table('posseders')->where('reservation_id', $reservation->id)->delete();
+        
+        // Mettre à jour le statut de la réservation ou la supprimer
+        // Option 1: Mise à jour du statut
+        $reservation->status = 'annulée';
+        $reservation->save();
+        
+        // Option 2: Suppression (décommentez si vous préférez cette option)
+        // $reservation->delete();
+        
+        DB::commit();
+        
+        return redirect()->route('reservation.mes-reservations')
+            ->with('success', 'Votre réservation a été annulée avec succès.');
+            
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        return redirect()->back()
+            ->with('error', 'Une erreur est survenue lors de l\'annulation de votre réservation: ' . $e->getMessage());
+    }
+}
+/* public function mesReservations()
+{
+    // Vérifier si l'utilisateur est connecté
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+    
+    // Récupérer les réservations de l'utilisateur avec les relations
+    $reservations = Reservation::with(['chambre', 'supplements'])
+        ->where('user_id', Auth::id())
+        ->orderBy('created_at', 'desc')
+        ->get();
+        
+    return view('reservation.mes-reservations', compact('reservations'));
+} */
+    /* public function index()
     {
         $reservations = Reservation::all();
         $clients= Client::all();
         return view("reservation.liste",compact('reservations','clients'));
-    }
+    } */
 
     /**
      * Show the form for creating a new resource.
@@ -43,9 +264,82 @@ class ReservationController extends Controller
      * Store a newly created resource in storage.
      */
 
+     //stockage suite à une réservation en ligne 
+     public function storeOnLine(Request $request)
+     {
+        //dd($request->all());
+        $request->validate([
+            'nom' => 'required|string',
+            'prenom' => 'required|string',
+            'pays' => 'nullable|string',
+            'region' => 'nullable|string',
+            'numTel' => 'required|string',
+            'typeId' => 'required|in:CIN,passeport',
+            'CIN' => 'nullable|required_if:typeId,CIN|string',
+            'passeport' => 'nullable|required_if:typeId,passeport|string',
+            'dateDeb' => 'required|date',
+            'dateFin' => 'required|date|after:dateDeb',
+            'totalPayer' => 'required|numeric',
+            //'services' => 'nullable|array',
+        ]);
+
+        if( $request->typeId == 'CIN'){
+            $client = Client::where('CIN', $request->CIN)
+                ->first();
+        }
+        else{
+            $client = Client::where('passeport', $request->passeport)
+                ->first();
+        }
+        if (!$client) {
+            if( $request->typeId == 'CIN'){
+                $client = Client::create([
+                    'nom' => $request->nom,
+                    'prenom' => $request->prenom,
+                    'pays' => $request->pays,
+                    'region' => $request->region,
+                    'numTel' => $request->numTel,
+                    'typeId' => $request->typeId,
+                    'CIN' => $request->CIN,
+                ]);
+            }else{
+                $client = Client::create([
+                    'nom' => $request->nom,
+                    'prenom' => $request->prenom,
+                    'pays' => $request->pays,
+                    'region' => $request->region,
+                    'numTel' => $request->numTel,
+                    'typeId' => $request->typeId,
+                    'passeport' => $request->passeport,
+                ]);
+            }
+        }
+
+        $reservation = Reservation::create([
+            'dateDeb' => $request->dateDeb,
+            'dateFin' => $request->dateFin,
+            'totalPayer' => $request->totalPayer,
+            'soldePayer' => $request->totalPayer,
+            'receptionniste_id' => 0,
+            'client_id' => $client->id,
+        ]);
+
+        //dd($reservation);
+
+        $paiement = Paiement::create([
+            'montant'=>$request->totalPayer,
+            'mode'=>'carte',
+            'reservation_id'=>$reservation->id,
+            'datePa'=>now(),
+        ]);
+
+        
+        //dd($paiement);
+
+     }
 
     //stockage par le biais d'un formulaire de la part du réceptionniste
-    public function store(Request $request)
+    /* public function store(Request $request)
     {
         //valide les données et verifient si les conditions sont respectées
         $request->validate([
@@ -93,7 +387,7 @@ class ReservationController extends Controller
                     'region' => $request->region,
                     'numTel' => $request->numTel,
                     'typeId' => $request->typeId,
-                    'Passeport' => $request->numPasseport,
+                    'Passeport' => $request->Passeport,
                 ]);
             }
 
@@ -136,7 +430,7 @@ class ReservationController extends Controller
         }
 
         return redirect()->route('chambre.index')->with('success', 'Réservation ajoutée avec succès.');
-    }
+    } */
 
     /**
      * Display the specified resource.
@@ -222,7 +516,8 @@ class ReservationController extends Controller
     public function createForm()
     {
         // Récupérer toutes les chambres
-        $chambres = Chambre::with('categorie')->get();
+        $chambres = Chambre::all();
+        //$chambres = Chambre::with('categorie')->get();
 
         // Récupérer les services supplémentaires
         $supplementaires = Supplementaire::all();

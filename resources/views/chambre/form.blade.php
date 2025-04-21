@@ -13,7 +13,7 @@
                 <h4 class="mb-0">Ajouter une chambre</h4>
             </div>
             <div class="card-body">
-                <form action="{{ route('chambre.store') }}" method="POST">
+                <form action="{{ route('chambre.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     
                     <div class="mb-3">
@@ -29,6 +29,16 @@
                     <div class="mb-3">
                         <label for="prixNuit" class="form-label">Prix par nuit</label>
                         <input type="number" class="form-control" name="prixNuit" >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="capacite" class="form-label">Capacité </label>
+                        <input type="number" min="1" max="100" step="1" class="form-control" name="capacite" >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Image de la chambre</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
                     </div>
 
                     <div class="mb-3">

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->date('dateFin');
             $table->decimal('totalPayer');
             $table->decimal('soldePayer');
-            $table->unsignedBigInteger('receptionniste_id');
-            $table->foreign('receptionniste_id')->references('id')->on('receptionnistes')->onUpdate('cascade');     
+            $table->unsignedBigInteger('receptionniste_id')->default(0);
+            //$table->foreign('receptionniste_id')->references('id')->on('receptionnistes')->onUpdate('cascade');     
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')->references('id')->on('clients')->onUpdate('cascade');     
             $table->timestamps();

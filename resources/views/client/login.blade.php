@@ -35,7 +35,7 @@
       <p class="text-gray-600">Connectez-vous à votre compte</p>
     </div>
 
-    <form id="login-form" action="{{ route('login.post') }}" method="POST" class="space-y-6">
+    <!--<form id="login-form" action="{{-- route('login.post') --}}" method="POST" class="space-y-6">
       @csrf
 
       <div class="mb-4">
@@ -73,8 +73,29 @@
       <button type="submit" class="w-full py-3 px-4 bg-[#95714F] text-white rounded-lg font-medium hover:bg-[#6d4927] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#95714F] transform hover:-translate-y-0.5 transition-all duration-300">
         Se connecter
       </button>
-    </form>
+    </form>-->
 
+    <form action="{{ route('login.post') }}" method="POST">
+      @csrf
+      <div class="mb-3">
+          <label for="email" class="form-label">E-mail :</label>
+          <input type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+      </div>
+
+      <div class="mb-3">
+          <label for="password" class="form-label">Mot de passe :</label>
+          <input type="password" class="form-control" name="password" required>
+      </div>
+
+      <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary">Se connecter</button>
+      </div>
+
+      <div class="text-center mt-3">
+          <p>Pas encore inscrit ? <a href="{{ route('register') }}">Créez un compte</a></p>
+      </div>
+  </form>
+  
     <div class="mt-8 text-center">
       <p class="text-gray-600 text-sm">Ou connectez-vous avec</p>
       <div class="flex justify-center space-x-4 mt-4">

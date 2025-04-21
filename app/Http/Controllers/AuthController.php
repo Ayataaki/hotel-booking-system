@@ -28,7 +28,7 @@ class AuthController extends Controller{
         //on compare les données entrées par celle qui se trouve dans la BD
         if(Auth::attempt($credentials)){
             //with(): permet de passer des paramètres par le biais d'une variable de session , ça sera session(success)
-            return redirect("/chambre")->with("success","Successfuly logged in");
+            return redirect("/reservation")->with("success","Successfuly logged in");
         }
         return redirect("/login")->with("error","Try again");
     }
@@ -65,4 +65,7 @@ class AuthController extends Controller{
         $request->session()->regenerateToken();
         return redirect('/login');
 }
+    public function showProfile(){
+        return 'Profile';
+    }
 }

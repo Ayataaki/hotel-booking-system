@@ -45,28 +45,21 @@
       <p class="text-gray-600">Rejoignez LA MI CASA pour bénéficier d'offres exclusives</p>
     </div>
 
-    <form id="register-form" method="POST" action="{{ route('register') }}" class="space-y-6">
+    <!--<form id="register-form" method="POST" action="{{-- route('register') --}}" class="space-y-6">-->
+    <form id="register-form" method="POST" action="{{ route('register.post') }}" class="space-y-6">
       @csrf
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
-          <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Prénom <span class="text-red-500">*</span></label>
-          <input type="text" id="firstname" name="firstname" placeholder="Jean" required
+          <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur <span class="text-red-500">*</span></label>
+          <input type="text" id="firstname" name="name" placeholder="Jean" required
                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F] @error('firstname') border-red-500 @enderror">
           @error('firstname')
             <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
           @enderror
         </div>
 
-        <div>
-          <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Nom <span class="text-red-500">*</span></label>
-          <input type="text" id="lastname" name="lastname" placeholder="Dupont" required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F] @error('lastname') border-red-500 @enderror">
-          @error('lastname')
-            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-          @enderror
-        </div>
-      </div>
+        <!--j'ai enlevé le champs nom & prénom et j'ai mis nom d'utilisateur-->
 
       <div class="mb-6">
         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
@@ -76,6 +69,10 @@
           <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
         @enderror
       </div>
+
+      
+      <!--pour que le type d'utilisateur soit client-->
+      <input type="hidden" name="userType" value="client">
 
       <div class="mb-6">
         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe <span class="text-red-500">*</span></label>
