@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Admin;
+use App\Models\Chambre;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use App\Models\Receptionniste;
 use Illuminate\Support\Facades\Hash;
+
 
 class AdminController extends Controller
 {
@@ -32,7 +35,7 @@ class AdminController extends Controller
     public function store(Request $request)
     {
 
-        
+
         $user = User::create([
             'name' => $request->input('nomRec') . ' ' . $request->input('prenomRec'),
             'email' => $request->email,
@@ -55,6 +58,60 @@ class AdminController extends Controller
 
 
     }
+
+
+
+    // La page de dashboard de l'admin.
+    // public function dashboard()
+    // {
+    //     return view('admin.dashboard');
+    // }
+
+    // La page de dashboard de l'admin.
+    // Pour rendre la page d'admin dynamique.
+    public function dashboard()
+    {
+        $totalReservations = Reservation::count();
+        $totalChambres = Chambre::count();
+        $totalEmployes = User::where('userType', 'recep')->count();
+        $totalClients = User::where('userType', 'client')->count();
+
+        // $recentReservations = Reservation::latest()->take(5)->get();
+        // $recentReservations = Reservation::with('chambre')->latest()->take(5)->get();
+        $recentReservations = Reservation::with('chambre.categorie')->latest()->take(5)->get();
+
+
+        return view('admin.dashboard', compact(
+            'totalReservations',
+            'totalChambres',
+            'totalEmployes',
+            'totalClients',
+            'recentReservations'
+        ));
+    }
+
+    // Pour accéder aux chambres via l'admin.
+    public function rooms()
+    {
+        // return view('admin.rooms');
+        $chambres = Chambre::with('categorie')->get();
+        return view('admin.rooms', compact('chambres'));
+    }
+
+    // Pour visualiser le personnel (staff).
+    public function staff()
+    {
+        return view('admin.staff');
+    }
+
+    // Pour accéder aux réservations.
+    public function reservations()
+    {
+        return view('admin.reservations');
+    }
+
+
+
 
     /**
      * Display the specified resource.

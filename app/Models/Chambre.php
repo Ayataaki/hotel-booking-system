@@ -19,16 +19,19 @@ class Chambre extends Model
         'image',
         'capacite'
     ];
-/*    public function category()
+    /*    public function category()
     {
         return $this->belongsTo(Categorie::class);
               }
         */
+
+    // Pour savoir la catégorie de chaque chambre, ça va nous aider dans la page d'admin.
     public function categorie()
     {
-        return $this->belongsTo(Categorie::class, 'categorie_id');
+        // return $this->belongsTo(Categorie::class, 'categorie_id');
+        return $this->belongsTo(Categorie::class);
     }
-        
+
 
      /**
      * Vérifie si la chambre est disponible pour les dates spécifiées
@@ -43,11 +46,11 @@ class Chambre extends Model
         if ($this->status == 1) {
             return false;
         }
-        
+
         // Convertir les dates en objets Carbon pour faciliter les comparaisons
         $arrivee = Carbon::parse($dateArrivee);
         $depart = Carbon::parse($dateDepart);
-        
+
         // Vérifier s'il existe des réservations qui se chevauchent avec la période demandée
         $reservationCount = $this->reservations()
             ->where(function ($query) use ($arrivee, $depart) {
@@ -66,11 +69,11 @@ class Chambre extends Model
                 });
             })
             ->count();
-        
+
         // La chambre est disponible s'il n'y a pas de réservations qui se chevauchent
         return $reservationCount === 0;
     }
-    
+
     /**
      * Récupère toutes les chambres disponibles pour les dates spécifiées
      *
@@ -83,7 +86,7 @@ class Chambre extends Model
     {
         $arrivee = Carbon::parse($dateArrivee);
         $depart = Carbon::parse($dateDepart);
-        
+
         $query = self::with('categorie')
             ->where('status', 0) // Uniquement les chambres non occupées
             ->whereDoesntHave('reservations', function ($query) use ($arrivee, $depart) {
@@ -100,12 +103,26 @@ class Chambre extends Model
                     });
                 });
             });
-        
+
         // Filtrer par catégorie si spécifiée
         if ($categorieId) {
             $query->where('categorie_id', $categorieId);
         }
-        
+
         return $query->get();
     }
+
+    public function getStatusLabelAttribute()
+    {
+        return match($this->status) {
+            0 => 'Maintenance',
+            1 => 'Disponible',
+            2 => 'Occupée',
+            default => 'Inconnu'
+        };
+    }
+
+
+
+
 }

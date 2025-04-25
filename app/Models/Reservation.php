@@ -22,7 +22,7 @@ class Reservation extends Model
     {
         return $this->belongsTo(Client::class);
     } */
-    
+
     public function supplementaires()
     {
         return $this->belongsToMany(Supplementaire::class, 'posseders', 'reservation_id', 'supplementaire_id');
@@ -33,11 +33,19 @@ class Reservation extends Model
      *
      * @var array
      */
+
+    // C'est faux :
+    // protected $casts = [
+    //     'date_arrivee' => 'datetime',
+    //     'date_depart' => 'datetime',
+    // ];
+
+    // C'est juste.
     protected $casts = [
-        'date_arrivee' => 'datetime',
-        'date_depart' => 'datetime',
+        'dateDeb' => 'date',
+        'dateFin' => 'date',
     ];
-    
+
     /**
      * Relation avec la chambre
      */
@@ -45,7 +53,7 @@ class Reservation extends Model
     {
         return $this->belongsTo(Chambre::class);
     }
-    
+
     /**
      * Relation avec le client
      */
@@ -53,7 +61,7 @@ class Reservation extends Model
     {
         return $this->belongsTo(Client::class);
     }
-    
+
     /**
      * Calculer la durée du séjour en nuits
      *
@@ -63,7 +71,7 @@ class Reservation extends Model
     {
         return $this->date_arrivee->diffInDays($this->date_depart);
     }
-    
+
     /**
      * Calculer le prix total du séjour
      *
@@ -73,10 +81,10 @@ class Reservation extends Model
     {
         $duree = $this->duree_sejour;
         $prixNuit = $this->chambre->prixNuit;
-        
+
         return $duree * $prixNuit;
     }
-    
+
     /**
      * Vérifier si les dates de réservation chevauchent une réservation existante
      *
@@ -103,12 +111,12 @@ class Reservation extends Model
                       ->where('date_depart', '>=', $dateDepart);
                 });
             });
-            
+
         // Exclure la réservation en cours de modification si nécessaire
         if ($excludeReservationId) {
             $query->where('id', '!=', $excludeReservationId);
         }
-        
+
         return $query->exists();
     }
 
@@ -122,5 +130,5 @@ class Reservation extends Model
         {
             return $this->belongsToMany(Reservation::class, 'posseders', 'supplementaire_id', 'reservation_id');
         }
-        
+
 }

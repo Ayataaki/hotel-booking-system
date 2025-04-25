@@ -1,6 +1,6 @@
 <!-- Footer -->
 <footer class="bg-[#F3ECE3] text-gray-700 py-12 px-4 relative">
-  <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-8 pt-8">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-5 gap-8 pt-8">
     <div>
       <h3 class="text-xl font-bold font-['Playfair_Display'] text-[#6d4927] mb-4">LA MI CASA</h3>
       <p class="text-sm">Un havre de paix au cœur de la ville. Notre hôtel vous offre confort, élégance et services de qualité pour un séjour inoubliable.</p>
@@ -59,6 +59,9 @@
           </svg>
         </a>
       </div>
+    </div>
+    <div>
+        <a href="/login" class="text-sm text-gray-500 hover:underline">Espace admin</a>
     </div>
   </div>
 

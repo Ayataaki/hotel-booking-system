@@ -26,10 +26,24 @@ class AuthController extends Controller{
         $credentials=$request->only("email","password");
 
         //on compare les données entrées par celle qui se trouve dans la BD
+        // if(Auth::attempt($credentials)){
+        //     //with(): permet de passer des paramètres par le biais d'une variable de session , ça sera session(success)
+        //     return redirect("/reservation")->with("success","Successfuly logged in");
+        // }
+        
+        // Vérification des identifiants
         if(Auth::attempt($credentials)){
-            //with(): permet de passer des paramètres par le biais d'une variable de session , ça sera session(success)
-            return redirect("/reservation")->with("success","Successfuly logged in");
+            $request->session()->regenerate(); // sécurise la session
+
+            $userType = Auth::user()->userType;
+
+            return match ($userType) {
+                'admin' => redirect('/admin/dashboard')->with('success', 'Bienvenue Admin !'),
+                'recep' => redirect('/reception/dashboard')->with('success', 'Bienvenue Réceptionniste !'),
+                default => redirect('/reservation')->with('success', 'Bienvenue Client !'),
+            };
         }
+
         return redirect("/login")->with("error","Try again");
     }
     public function register(){

@@ -11,6 +11,7 @@ use App\Http\Controllers\ChambreController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SupplementaireController;
+use App\Http\Controllers\ReceptionnisteController;
 // Le nouveau qu'Anas a crée :
 use App\Http\Controllers\HomeController;
 
@@ -38,6 +39,55 @@ Route::get("/register", [AuthController::class,"register"])->name("register");
 Route::post( "/register", [AuthController::class,"registerPost"])->name("register.post");
 
 
+
+
+
+// Admin uniquement
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/rooms', [App\Http\Controllers\AdminController::class, 'rooms'])->name('admin.rooms');
+    Route::get('/admin/staff', [App\Http\Controllers\AdminController::class, 'staff'])->name('admin.staff');
+    Route::get('/admin/reservations', [App\Http\Controllers\AdminController::class, 'reservations'])->name('admin.reservations');
+
+    //La gestion des chambres.
+    Route::put('/admin/chambres/{id}', [ChambreController::class, 'update']);
+    Route::delete('/admin/chambres/{id}', [ChambreController::class, 'destroy'])->name('destroy');
+    Route::post('/admin/chambres', [ChambreController::class, 'store']);
+    Route::get('/admin/chambres', [ChambreController::class, 'index'])->name('admin.rooms');
+
+
+    //La gestion des personnels.
+    Route::get('/admin/staff', [ReceptionnisteController::class, 'index'])->name('admin.staff');
+
+
+
+
+
+    // Route::get('/admin/chambres/{id}/edit', [ChambreController::class, 'edit'])->name('chambres.edit');
+
+    // Route::delete('/admin/chambres/{id}', [ChambreController::class, 'destroy'])->name('chambres.destroy');
+    // Route::put('/admin/chambres/{id}', [ChambreController::class, 'update'])->name('chambres.update');
+
+});
+// Route::middleware(['auth', 'role:admin'])->group(function () {
+
+// });
+
+
+
+// Réceptionniste uniquement
+Route::middleware(['auth', 'role:recep'])->group(function () {
+    Route::get('/reception/dashboard', [ReceptionController::class, 'dashboard'])->name('reception.dashboard');
+});
+
+
+
+
+
+
+
+
+
 Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile')->middleware('auth');
 
 //whenever an unauth. person tries to access those views, will be directly redirected to the '/login' by default
@@ -46,7 +96,6 @@ Route::middleware(['auth'/*, 'RoleMiddleware:client' !!ça ne marche pas*/])->gr
 
 Route::get('/chambres/disponibles', [ChambreController::class, 'getChambresDisponibles']);
 Route::get('/chambres/{id}', [ChambreController::class, 'getChambre']);
-
 
     Route::get("/reservation", [ReservationController::class, "createForm"])->name("reservation");
 

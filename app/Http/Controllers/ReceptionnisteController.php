@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Receptionniste;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class ReceptionnisteController extends Controller
 {
@@ -12,7 +13,8 @@ class ReceptionnisteController extends Controller
      */
     public function index()
     {
-        //
+        $receptionnistes = Receptionniste::all();
+        return view('admin.staff', compact('receptionnistes'));
     }
 
     /**
@@ -52,7 +54,19 @@ class ReceptionnisteController extends Controller
      */
     public function update(Request $request, Receptionniste $receptionniste)
     {
-        //
+        $receptionniste->update([
+            'prenomRec' => $request->prenom,
+            'nomRec' => $request->nom,
+            'email' => $request->email,
+            'numTel' => $request->phone,
+            'CIN' => $request->cin,
+            'adresse' => $request->adresse,
+            'statut' => $request->status,
+            // Hasher seulement si le champ est rempli
+            'password' => $request->filled('password') ? Hash::make($request->password) : $receptionniste->password,
+        ]);
+
+        return response()->json(['message' => 'Modifié avec succès']);
     }
 
     /**

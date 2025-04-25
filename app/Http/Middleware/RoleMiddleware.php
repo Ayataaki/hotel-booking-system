@@ -9,7 +9,8 @@ class RoleMiddleware
 {
     public function handle($request, Closure $next, $type)
     {
-        if (Auth::check() && Auth::user()->typeUser === $type) {//verifie en premier si le client est authentifié et ensuite son type
+        // ici il y avait une faute : typeUser au lieu de userType.
+        if (Auth::check() && Auth::user()->userType === $type) {//verifie en premier si le client est authentifié et ensuite son type
             return $next($request);
         }
 
