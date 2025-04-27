@@ -35,23 +35,26 @@
       <p class="text-gray-600">Connectez-vous à votre compte</p>
     </div>
 
-    <!--<form id="login-form" action="{{-- route('login.post') --}}" method="POST" class="space-y-6">
+    <form id="login-form" action="{{ route('login.post') }}" method="POST" class="space-y-6">
       @csrf
 
-      <div class="mb-4">
+      <div>
         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
         <input type="email" id="email" name="email" placeholder="votre@email.com" required
-              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F] @error('email') border-red-500 @enderror" value="{{ old('email') }}">
+        @error('email')
+          <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+        @enderror
       </div>
 
-      <div class="mb-2">
+      <div>
         <div class="flex items-center justify-between mb-1">
           <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
           <a href="#" class="text-xs text-[#95714F] hover:text-[#6d4927] no-underline hover:underline transition-colors duration-300">Mot de passe oublié?</a>
         </div>
         <div class="relative">
           <input type="password" id="password" name="password" placeholder="••••••••" required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F] @error('password') border-red-500 @enderror">
           <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-[#95714F] focus:outline-none">
             <svg id="showPasswordIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -63,9 +66,12 @@
             </svg>
           </button>
         </div>
+        @error('password')
+          <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+        @enderror
       </div>
 
-      <div class="flex items-center mb-6">
+      <div class="flex items-center">
         <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-[#95714F] rounded border-gray-300 focus:ring-[#95714F]">
         <label for="remember" class="ml-2 block text-sm text-gray-700">Se souvenir de moi</label>
       </div>
@@ -73,28 +79,7 @@
       <button type="submit" class="w-full py-3 px-4 bg-[#95714F] text-white rounded-lg font-medium hover:bg-[#6d4927] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#95714F] transform hover:-translate-y-0.5 transition-all duration-300">
         Se connecter
       </button>
-    </form>-->
-
-    <form action="{{ route('login.post') }}" method="POST">
-      @csrf
-      <div class="mb-3">
-          <label for="email" class="form-label">E-mail :</label>
-          <input type="email" class="form-control" name="email" value="{{ old('email') }}" required>
-      </div>
-
-      <div class="mb-3">
-          <label for="password" class="form-label">Mot de passe :</label>
-          <input type="password" class="form-control" name="password" required>
-      </div>
-
-      <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-primary">Se connecter</button>
-      </div>
-
-      <div class="text-center mt-3">
-          <p>Pas encore inscrit ? <a href="{{ route('register') }}">Créez un compte</a></p>
-      </div>
-  </form>
+    </form>
   
     <div class="mt-8 text-center">
       <p class="text-gray-600 text-sm">Ou connectez-vous avec</p>
@@ -136,32 +121,29 @@
     const showPasswordIcon = document.getElementById('showPasswordIcon');
     const hidePasswordIcon = document.getElementById('hidePasswordIcon');
 
-    togglePassword.addEventListener('click', () => {
-      if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        showPasswordIcon.classList.add('hidden');
-        hidePasswordIcon.classList.remove('hidden');
-      } else {
-        passwordField.type = 'password';
-        showPasswordIcon.classList.remove('hidden');
-        hidePasswordIcon.classList.add('hidden');
-      }
-    });
+    if (togglePassword && passwordField) {
+      togglePassword.addEventListener('click', () => {
+        if (passwordField.type === 'password') {
+          passwordField.type = 'text';
+          showPasswordIcon.classList.add('hidden');
+          hidePasswordIcon.classList.remove('hidden');
+        } else {
+          passwordField.type = 'password';
+          showPasswordIcon.classList.remove('hidden');
+          hidePasswordIcon.classList.add('hidden');
+        }
+      });
+    }
 
-    // Simulation d'une soumission de formulaire pour le prototype
-    document.getElementById('login-form').addEventListener('submit', (e) => {
-      e.preventDefault(); // Empêche la soumission réelle du formulaire
-
-      // Simule le traitement
-      const submitButton = e.submitter;
-      submitButton.textContent = 'Connexion en cours...';
-      submitButton.disabled = true;
-
-      // Simule une redirection après 1.5 secondes
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1500);
-    });
+    // Form submission animation
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        const submitButton = e.submitter;
+        submitButton.textContent = 'Connexion en cours...';
+        submitButton.disabled = true;
+      });
+    }
   });
 </script>
 @endsection

@@ -118,7 +118,7 @@
       </div>
 
       <!-- Carrousel de témoignages avec Alpine.js -->
-      <div x-data="{
+      {{-- <div x-data="{
         testimonials: [
           {
             name: 'Sophie Martin',
@@ -200,9 +200,9 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
-
+ --}}
         <!-- Conteneur des témoignages -->
-        <div class="overflow-hidden rounded-2xl shadow-xl">
+        {{-- <div class="overflow-hidden rounded-2xl shadow-xl">
           <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${activeIndex * 100}%)`">
             <!-- Témoignages individuels -->
             <template x-for="(testimonial, index) in testimonials" :key="index">
@@ -247,136 +247,222 @@
               </div>
             </template>
           </div>
-        </div>
+        </div> --}}
+
+        <!-- Section Témoignages -->
+ {{--  <section class="py-20 bg-[#EADED0] relative overflow-hidden">
+    <!-- Éléments décoratifs -->
+    <div class="absolute top-0 left-0 w-32 h-32 bg-[#ACB087] opacity-10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 right-0 w-64 h-64 bg-[#95714F] opacity-10 rounded-full translate-x-1/4 translate-y-1/4"></div>
+
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold font-['Playfair_Display'] mb-4 text-[#6d4927] animated-fade">Ce que nos clients disent</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto animated-fade">Découvrez les expériences authentiques vécues par nos clients lors de leur séjour dans notre établissement.</p>
+      </div> --}}
+
+      <!-- Carrousel de témoignages avec Alpine.js -->
+      <div x-data="{
+        // Utilisation des données dynamiques provenant de la base de données
+        testimonials: {{ Illuminate\Support\Js::from($temoignages) }},
+        activeIndex: 0,
+        autoplayEnabled: true,
+        autoplayInterval: null,
+
+        init() {
+          this.startAutoplay();
+
+          // Arrêter l'autoplay quand la souris survole le carrousel
+          this.$el.addEventListener('mouseenter', () => this.stopAutoplay());
+          this.$el.addEventListener('mouseleave', () => this.startAutoplay());
+        },
+
+        startAutoplay() {
+          if (this.autoplayEnabled) {
+            this.autoplayInterval = setInterval(() => {
+              this.next();
+            }, 5000);
+          }
+        },
+
+        stopAutoplay() {
+          clearInterval(this.autoplayInterval);
+        },
+
+        next() {
+          this.activeIndex = (this.activeIndex + 1) % this.testimonials.length;
+        },
+
+        prev() {
+          this.activeIndex = (this.activeIndex - 1 + this.testimonials.length) % this.testimonials.length;
+        },
+
+        setActive(index) {
+          this.activeIndex = index;
+        }
+      }" class="relative animated-fade" x-cloak>
+
+        <!-- Flèches de navigation -->
+        <button @click="prev(); stopAutoplay()"
+                class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-0 md:-translate-x-8 z-10 bg-white/80 hover:bg-white text-[#95714F] p-3 rounded-full shadow-md transition-all duration-300 transform hover:scale-110 hover:-translate-x-1 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button @click="next(); stopAutoplay()"
+                class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-0 md:translate-x-8 z-10 bg-white/80 hover:bg-white text-[#95714F] p-3 rounded-full shadow-md transition-all duration-300 transform hover:scale-110 hover:translate-x-1 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Message si aucun témoignage n'est disponible -->
+        <template x-if="testimonials.length === 0">
+          <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-8 md:p-10 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-[#ACB087] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <p class="text-[#6d4927] text-lg font-medium mb-4">Nos clients n'ont pas encore laissé d'avis.</p>
+            <p class="text-gray-600">Soyez le premier à partager votre expérience!</p>
+            <a href="{{ route('commentaires.create') }}" class="mt-6 inline-block px-6 py-3 bg-[#95714F] text-white rounded-lg hover:bg-[#6d4927] transition-colors">
+              Donner votre avis
+            </a>
+          </div>
+        </template>
+
+        <!-- Conteneur des témoignages -->
+        <template x-if="testimonials.length > 0">
+          <div class="overflow-hidden rounded-2xl shadow-xl">
+            <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${activeIndex * 100}%)`">              <!-- Témoignages individuels -->
+              <template x-for="(testimonial, index) in testimonials" :key="index">
+                <div class="w-full flex-shrink-0 px-4">
+                  <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-8 md:p-10 relative">
+                    <!-- Guillemets décoratifs -->
+                    <div class="absolute top-6 left-6 text-[#ACB087] opacity-20">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                      </svg>
+                    </div>
+
+                    <!-- Étoiles -->
+                    <div class="flex mb-4">
+                      <template x-for="i in testimonial.rating">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 transform transition-all duration-300 hover:scale-125" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </template>
+                      <template x-for="i in (5 - testimonial.rating)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </template>
+                    </div>
+
+                    <!-- Commentaire -->
+                    <p class="text-gray-600 mb-8 text-lg italic" x-text="testimonial.comment"></p>
+
+                    <!-- Informations client -->
+                    <div class="flex items-center">
+                      <div>
+                        <p class="font-bold text-[#6d4927]" x-text="testimonial.name"></p>
+                        <p class="text-gray-500 text-sm" x-text="testimonial.location"></p>
+                      </div>
+                    </div> 
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
 
         <!-- Indicateurs -->
+      <template x-if="testimonials.length > 0">
         <div class="flex justify-center mt-8 space-x-2">
           <template x-for="(testimonial, index) in testimonials" :key="index">
-            <button @click="setActive(index); stopAutoplay()"
+            {{-- <button @click="setActive(index); stopAutoplay()"
               :class="`h-3 rounded-full transition-all duration-500 ${activeIndex === index ? 'bg-[#95714F] w-10' : 'bg-gray-300 hover:bg-gray-400 w-3'}`">
-            </button>
+            </button> --}}
+            <button @click="setActive(index); stopAutoplay()"
+            :class="'h-3 rounded-full transition-all duration-500 ' + (activeIndex === index ? 'bg-[#95714F] w-10' : 'bg-gray-300 hover:bg-gray-400 w-3')">
+          </button>
           </template>
         </div>
-      </div>
-
-      <!-- Appel à l'action -->
-      <div class="mt-16 text-center">
-        <p class="text-lg font-medium mb-6 text-[#6d4927] animated-fade">Rejoignez nos clients satisfaits et vivez une expérience exceptionnelle</p>
-        <a href="{{ route('reservation') }}"
-          class="inline-block px-8 py-4 bg-[#95714F] text-white font-semibold rounded-md transition-all duration-500 transform hover:-translate-y-2 hover:shadow-xl hover:bg-[#86572a] relative overflow-hidden group animated-fade">
-          <span class="relative z-10">Réserver votre séjour</span>
-          <span class="absolute inset-0 w-full h-0 bg-[#6d4927] transition-all duration-300 group-hover:h-full"></span>
-        </a>
-      </div>
+      </template>
     </div>
 
-    <!-- Séparateur ondulé -->
-    <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none rotate-180">
-      <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" class="w-full h-20 text-white fill-current">
-        <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25"></path>
-        <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5"></path>
-        <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"></path>
-      </svg>
+    <!-- Appel à l'action -->
+    <div class="mt-16 text-center">
+      <p class="text-lg font-medium mb-6 text-[#6d4927] animated-fade">Rejoignez nos clients satisfaits et vivez une expérience exceptionnelle</p>
+      <a href="{{ route('reservation') }}"
+        class="inline-block px-8 py-4 bg-[#95714F] text-white font-semibold rounded-md transition-all duration-500 transform hover:-translate-y-2 hover:shadow-xl hover:bg-[#86572a] relative overflow-hidden group animated-fade">
+        <span class="relative z-10">Réserver votre séjour</span>
+        <span class="absolute inset-0 w-full h-0 bg-[#6d4927] transition-all duration-300 group-hover:h-full"></span>
+      </a>
     </div>
+  </div>
+
+  <!-- Séparateur ondulé -->
+  <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none rotate-180">
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" class="w-full h-20 text-white fill-current">
+      <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25"></path>
+      <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5"></path>
+      <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"></path>
+    </svg>
+  </div>
   </section>
 
   <!-- Chambres Vedettes -->
   <section class="py-20 relative bg-fixed bg-cover bg-center"
-           style="background-image: url('{{ asset('images/hotel_2.jpg') }}')">
-    <!-- Dégradé de transition (haut) -->
-    <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/70 to-transparent z-10"></div>
+  style="background-image: url('{{ asset('images/hotel_2.jpg') }}')">
+  <!-- Dégradé de transition (haut) -->
+  <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white via-white/70 to-transparent z-10"></div>
 
-    <!-- Overlay semi-transparent -->
-    <div class="absolute inset-0 bg-white/80 backdrop-blur-sm z-0"></div>
+  <!-- Overlay semi-transparent -->
+  <div class="absolute inset-0 bg-white/80 backdrop-blur-sm z-0"></div>
 
-    <div class="relative z-10 max-w-6xl mx-auto px-4 py-20">
-      <h2 class="text-3xl font-bold text-center font-['Playfair_Display'] text-[#6d4927] mb-4 animated-fade">Nos Chambres Vedettes</h2>
-      <p class="text-center text-[#95714F] max-w-2xl mx-auto mb-12 animated-fade">Découvrez nos espaces de vie élégants et confortables, conçus pour rendre votre séjour inoubliable.</p>
+  <div class="relative z-10 max-w-6xl mx-auto px-4 py-20">
+  <h2 class="text-3xl font-bold text-center font-['Playfair_Display'] text-[#6d4927] mb-4 animated-fade">Nos Chambres Vedettes</h2>
+  <p class="text-center text-[#95714F] max-w-2xl mx-auto mb-12 animated-fade">Découvrez nos espaces de vie élégants et confortables, conçus pour rendre votre séjour inoubliable.</p>
 
-      
-      <div class="grid md:grid-cols-3 gap-8">
-        <!-- Chambre Deluxe -->
-        <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl border border-transparent hover:border-[#95714F] animated-fade">
-          <div class="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-          <div class="overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Deluxe"
-                 class="w-full h-60 object-cover transform group-hover:scale-110 group-hover:rotate-1 transition duration-700">
-          </div>
-          <span class="absolute top-3 left-3 bg-[#95714F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-20">Deluxe</span>
-          <div class="p-6 relative z-20">
-            <h3 class="text-xl font-bold text-[#6d4927] mb-2 group-hover:text-[#95714F] transition-colors">Chambre Deluxe</h3>
-            <p class="text-gray-600 text-sm mb-4">Confort moderne, vue panoramique et équipements haut de gamme pour un séjour de qualité.</p>
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-[#95714F]">À partir de 129€</span>
-              <a href="{{ route('chambres') }}" class="px-4 py-2 bg-transparent text-[#95714F] border border-[#95714F] rounded hover:bg-[#95714F] hover:text-white transition-all duration-300 text-sm">Voir détails</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Suite Prestige -->
-        <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl border border-transparent hover:border-[#95714F] animated-fade" style="animation-delay: 200ms;">
-          <div class="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-          <div class="overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Suite Prestige"
-                 class="w-full h-60 object-cover transform group-hover:scale-110 group-hover:rotate-1 transition duration-700">
-          </div>
-          <span class="absolute top-3 left-3 bg-[#95714F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-20">Prestige</span>
-          <div class="p-6 relative z-20">
-            <h3 class="text-xl font-bold text-[#6d4927] mb-2 group-hover:text-[#95714F] transition-colors">Suite Prestige</h3>
-            <p class="text-gray-600 text-sm mb-4">Salon privé, design raffiné et vue imprenable pour une expérience luxueuse.</p>
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-[#95714F]">À partir de 189€</span>
-              <a href="{{ route('chambres') }}" class="px-4 py-2 bg-transparent text-[#95714F] border border-[#95714F] rounded hover:bg-[#95714F] hover:text-white transition-all duration-300 text-sm">Voir détails</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Chambre Standard -->
-        <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl border border-transparent hover:border-[#95714F] animated-fade" style="animation-delay: 400ms;">
-          <div class="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-          <div class="overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Chambre Standard"
-                 class="w-full h-60 object-cover transform group-hover:scale-110 group-hover:rotate-1 transition duration-700">
-          </div>
-          <span class="absolute top-3 left-3 bg-[#95714F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-20">Standard</span>
-          <div class="p-6 relative z-20">
-            <h3 class="text-xl font-bold text-[#6d4927] mb-2 group-hover:text-[#95714F] transition-colors">Chambre Standard</h3>
-            <p class="text-gray-600 text-sm mb-4">Simple, confortable et équipée pour un séjour relaxant à prix accessible.</p>
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-[#95714F]">À partir de 99€</span>
-              <a href="{{ route('chambres') }}" class="px-4 py-2 bg-transparent text-[#95714F] border border-[#95714F] rounded hover:bg-[#95714F] hover:text-white transition-all duration-300 text-sm">Voir détails</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bouton voir toutes nos chambres -->
-      <div class="text-center mt-12">
-        <a href="{{ route('chambres') }}" class="inline-block px-8 py-4 bg-[#95714F] text-white font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:bg-[#6d4927] animated-fade">
-          Découvrir toutes nos chambres
-        </a>
+  <div class="grid md:grid-cols-3 gap-8">
+  @forelse($chambresVedettes as $chambre)
+  <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl border border-transparent hover:border-[#95714F] animated-fade" style="animation-delay: {{ $loop->index * 200 }}ms;">
+    <div class="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+    <div class="overflow-hidden">
+      <img src="{{ $chambre->image ? asset('images/' .$chambre->image): asset('images/chambre_standard_1.jpg') }}" alt="{{-- $chambre->titre ?? $chambre->categorie->nom ?? 'Chambre' --}}"
+          class="w-full h-60 object-cover transform group-hover:scale-110 group-hover:rotate-1 transition duration-700">
+    </div>
+    <span class="absolute top-3 left-3 bg-[#95714F] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-20">{{ $chambre->categorie->nom ?? 'Chambre' }}</span>
+    <div class="p-6 relative z-20">
+      <h3 class="text-xl font-bold text-[#6d4927] mb-2 group-hover:text-[#95714F] transition-colors">{{ $chambre->titre ?? '' . $chambre->categorie->nom }}</h3>
+      <p class="text-gray-600 text-sm mb-4">{{ Str::limit($chambre->categorie->description, 100) ?? 'Confort et élégance pour un séjour de qualité.' }}</p>
+      <div class="flex justify-between items-center">
+        <span class="font-bold text-[#95714F]">À partir de {{ $chambre->prixNuit }}€</span>
       </div>
     </div>
+  </div>
+  @empty
+  <!-- Fallback si aucune chambre n'est trouvée dans la base de données -->
+  <div class="col-span-3 text-center p-8 bg-white/90 rounded-lg">
+    <p class="text-[#6d4927] mb-4">Nos chambres vedettes seront bientôt disponibles.</p>
+    <a href="{{ route('chambres') }}" class="inline-block px-6 py-3 bg-[#95714F] text-white rounded-lg hover:bg-[#6d4927] transition-colors">
+      Voir toutes nos chambres
+    </a>
+  </div>
+  @endforelse
+  </div>
 
-    <!-- Version simplifiée du carrousel pour réduire les erreurs potentielles -->
-    <!-- <div class="hidden lg:block absolute bottom-20 left-1/2 transform -translate-x-1/2 w-[900px] max-w-full h-[320px] z-10 rounded-xl overflow-hidden shadow-2xl animated-fade">
-      <div class="relative w-full h-full">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10"></div>
-        <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" class="w-full h-full object-cover" />
-        <div class="absolute bottom-0 left-0 p-8 z-20">
-          <h3 class="text-2xl font-bold text-white mb-2">Restaurant Gastronomique</h3>
-          <p class="text-white/90">Savourez une cuisine raffinée dans un cadre élégant</p>
-        </div>
-      </div>
-    </div> -->
+  <!-- Bouton voir toutes nos chambres -->
+  <div class="text-center mt-12">
+  <a href="{{ route('chambres') }}" class="inline-block px-8 py-4 bg-[#95714F] text-white font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:bg-[#6d4927] animated-fade">
+  Découvrir toutes nos chambres
+  </a>
+  </div>
+  </div>
 
-    <!-- un petit dégradé meme s'il n'apparait pas mais il joue un role dans le design de la page -->
-    <div class="absolute bottom-0 left-0 w-full h-32">
-      <div class="w-full h-full bg-gradient-to-b from-transparent via-[#EADED0]/70 to-[#F3ECE3]"></div>
-    </div>
-    <!-- Dégradé de transition (bas) -->
-    <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#F8F7F4] via-[#F8F7F4]/70 to-transparent z-10"></div>
-
+  <!-- Dégradé de transition (bas) -->
+  <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#F8F7F4] via-[#F8F7F4]/70 to-transparent z-10"></div>
   </section>
 
 @endsection

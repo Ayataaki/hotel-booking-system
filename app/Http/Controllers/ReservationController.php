@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Chambre;
 use App\Models\Paiement;
+use App\Models\Posseder;
+use App\Models\Categorie;
+use App\Models\Historique;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use App\Models\Supplementaire;
 use Illuminate\Support\Carbon;
+use PhpParser\Node\Stmt\Else_;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\FactureController;
+use App\Models\Facture;
+use Illuminate\Support\Facades\Log;
+
 
 class ReservationController extends Controller
 {
@@ -135,41 +143,6 @@ public function confirmation($id)
     return view('reservation.confirmation', compact('reservation'));
 }
 
-/**
- * Affiche la liste des réservations de l'utilisateur connecté
- */
-public function mesReservations()
-{
-    // Vérifier si l'utilisateur est connecté
-    if (!Auth::check()) {
-        return redirect()->route('login');
-    }
-    
-    // Récupérer les réservations de l'utilisateur avec les relations
-    $reservations = Reservation::with(['chambre', 'supplements'])
-        ->where('user_id', Auth::id())
-        ->orderBy('created_at', 'desc')
-        ->get();
-        
-    return view('reservation.mes-reservations', compact('reservations'));
-}
-
-/**
- * Annule une réservation
- */
-
- 
-
-/**
- * Affiche la page de confirmation de réservation
- */
-/* public function confirmation($id)
-{
-    // Récupérer la réservation avec ses suppléments
-    $reservation = Reservation::with(['chambre', 'chambre.categorie', 'supplements'])->findOrFail($id);
-    
-    return view('reservation.confirmation', compact('reservation'));
-} */
     public function annuler($id)
 {
     try {
@@ -184,8 +157,8 @@ public function mesReservations()
         }
         
         // Vérifier si la réservation peut être annulée (règles d'annulation)
-        $dateDebut = \Carbon\Carbon::parse($reservation->dateDeb);
-        $today = \Carbon\Carbon::today();
+        $dateDebut = Carbon::parse($reservation->dateDeb);
+        $today = Carbon::today();
         $delaiAnnulation = 2; // 48 heures
         
         if ($dateDebut->diffInDays($today) < $delaiAnnulation) {
@@ -222,27 +195,7 @@ public function mesReservations()
             ->with('error', 'Une erreur est survenue lors de l\'annulation de votre réservation: ' . $e->getMessage());
     }
 }
-/* public function mesReservations()
-{
-    // Vérifier si l'utilisateur est connecté
-    if (!Auth::check()) {
-        return redirect()->route('login');
-    }
-    
-    // Récupérer les réservations de l'utilisateur avec les relations
-    $reservations = Reservation::with(['chambre', 'supplements'])
-        ->where('user_id', Auth::id())
-        ->orderBy('created_at', 'desc')
-        ->get();
-        
-    return view('reservation.mes-reservations', compact('reservations'));
-} */
-    /* public function index()
-    {
-        $reservations = Reservation::all();
-        $clients= Client::all();
-        return view("reservation.liste",compact('reservations','clients'));
-    } */
+
 
     /**
      * Show the form for creating a new resource.
@@ -266,23 +219,36 @@ public function mesReservations()
 
      //stockage suite à une réservation en ligne 
      public function storeOnLine(Request $request)
-     {
-        //dd($request->all());
-        $request->validate([
-            'nom' => 'required|string',
-            'prenom' => 'required|string',
-            'pays' => 'nullable|string',
-            'region' => 'nullable|string',
-            'numTel' => 'required|string',
-            'typeId' => 'required|in:CIN,passeport',
-            'CIN' => 'nullable|required_if:typeId,CIN|string',
-            'passeport' => 'nullable|required_if:typeId,passeport|string',
-            'dateDeb' => 'required|date',
-            'dateFin' => 'required|date|after:dateDeb',
-            'totalPayer' => 'required|numeric',
-            //'services' => 'nullable|array',
-        ]);
-
+    {
+        // 1. Récupérez les données brutes sans validation
+        $data = $request->all();
+        
+        // 2. Vérifiez si le problème vient de la validation
+        try {
+            $validated = $request->validate([
+                'nom' => 'required|string',
+                'prenom' => 'required|string',
+                'pays' => 'nullable|string',
+                'region' => 'nullable|string',
+                'numTel' => 'required|string',
+                'typeId' => 'required|in:CIN,passeport',
+                'CIN' => 'nullable|required_if:typeId,CIN|string',
+                'passeport' => 'nullable|required_if:typeId,passeport|string',
+                'dateDeb' => 'required|date',
+                'dateFin' => 'required|date|after:dateDeb',
+                'totalPayer' => 'required|numeric',
+                // Essayez sans ces validations pour voir si le problème est ici
+                // 'services' => 'nullable|array',
+                // 'chambresIds'=>'required|array',
+            ]);
+            
+            // Si ça passe, le problème est probablement dans les validations commentées
+            
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+        
+        // 3. Créez le client et la réservation
         if( $request->typeId == 'CIN'){
             $client = Client::where('CIN', $request->CIN)
                 ->first();
@@ -301,6 +267,7 @@ public function mesReservations()
                     'numTel' => $request->numTel,
                     'typeId' => $request->typeId,
                     'CIN' => $request->CIN,
+                    'utilisateur_id'=>Auth::user()->id,
                 ]);
             }else{
                 $client = Client::create([
@@ -311,8 +278,11 @@ public function mesReservations()
                     'numTel' => $request->numTel,
                     'typeId' => $request->typeId,
                     'passeport' => $request->passeport,
+                    'utilisateur_id'=>Auth::user()->id,
                 ]);
             }
+        }else{
+            $client->update($request->only(['utilisateur_id']));
         }
 
         $reservation = Reservation::create([
@@ -323,20 +293,205 @@ public function mesReservations()
             'receptionniste_id' => 0,
             'client_id' => $client->id,
         ]);
-
-        //dd($reservation);
-
-        $paiement = Paiement::create([
-            'montant'=>$request->totalPayer,
-            'mode'=>'carte',
-            'reservation_id'=>$reservation->id,
-            'datePa'=>now(),
-        ]);
-
         
-        //dd($paiement);
+        // 4. Essayez d'abord seulement avec les chambres
+        try {
+            // Utilisez array_filter pour éliminer les valeurs vides
+            $chambresIds = array_filter($request->input('chambresIds', []));
+            
+            foreach ($chambresIds as $chambreId) {
+                $chambre = Chambre::find($chambreId);
+                if ($chambre) {
+                    /* $chambre->update([
+                        'reservation_id' => $reservation->id,
+                        'status' => '1'
+                    ]); */
+                    $historique=Historique::create([
+                        'reservation_id'=>$reservation->id,
+                        'chambre_id'=>$chambre->id,
+                    ]);
+                }
+            }
+            
+            // Si ça passe, le problème n'est pas ici
+            
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erreur avec chambresIds: ' . $e->getMessage()], 422);
+        }
+        
+        // 5. Puis essayez seulement avec les services
+        if ($request->has('services')) {
+            // Récupérer le tableau services et filtrer les valeurs vides/null
+            $services = array_filter($request->input('services', []), function($value) {
+                return $value !== null && $value !== '';
+            });
+            
+            // Reconstruire le tableau avec des indices numériques consécutifs
+            $services = array_values($services);
+            
+            // Utiliser le tableau reconstruit
+            foreach ($services as $serviceId) {
+                Posseder::create([
+                    'supplementaire_id' => $serviceId,
+                    'reservation_id' => $reservation->id
+                ]);
+            }
+        }
+        
+        $reservation->adultsCount = $request->adultsCount;
+        $reservation->childrenCount = $request->childrenCount;
+        //$reservation->save();
 
-     }
+        // Dans le contrôleur
+        session([
+            'adultsCount' => $reservation->adultsCount,
+            'childrenCount' => $reservation->childrenCount
+        ]);
+        
+        // 6. Créez le paiement
+        $paiement = Paiement::create([
+            'montant' => $request->totalPayer,
+            'mode' => 'carte',
+            'reservation_id' => $reservation->id,
+            'datePa' => now(),
+        ]);
+        /* if ($reservation && $reservation->exists ) {
+            try {
+                $factureController = new FactureController();
+                $factureData = $factureController->genererFactureApresReservation($reservation);
+                $facture=Facture::create([
+                    'reservation_id'=>$reservation->id,
+                    'numero_facture'=>0,
+                    'montant_total'=>$request->totalPayer,
+                    'date_emission'=>now(),
+                    'details' => json_encode([
+                        'chambres' => $reservation->chambres,
+                        'services' => $reservation->services,
+                        'dates' => [$reservation->dateDeb, $reservation->dateFin],
+                        'adultsCount' => $reservation->adultsCount, // Récupéré de la réservation
+                        'childrenCount' => $reservation->childrenCount // Récupéré de la réservation
+                    ]),
+                ]);
+                $facture->update([
+                    'numero_facture' => $facture->id,
+                ]);
+                // Si la facture a été générée avec succès, ajouter l'info à la session
+                if ($factureData) {
+                    session()->flash('facture_id', $factureData['facture']->id);
+                }
+            } catch (\Exception $e) {
+                // Log l'erreur mais ne pas interrompre le processus
+                \Log::error('Erreur lors de la génération de la facture: ' . $e->getMessage());
+            }
+        }
+        
+        
+        //return response()->json(['success' => true]);
+        //return redirect()->route('home');
+        return redirect()->route('reservation.confirm')
+        ->with('reservation', $reservation)
+        ->with('facture', $facture);
+        //return view("client.confirmationReservation",compact("reservation","facture")); */
+        
+    /*         // Créer la facture
+            $reservation->load(['chambres', 'services']);
+            $facture = Facture::create([
+                'reservation_id' => $reservation->id,
+                'numero_facture' => 0, // Temporaire
+                'montant_total' => $request->totalPayer,
+                'date_emission' => now(),
+                'details' => json_encode([
+                    //'chambres' => $reservation->chambres,
+                    //'services' => $reservation->services,
+                    'chambres' => [], // Tableau vide pour déboguer
+                    'services' => [],
+                    'dates' => [$reservation->dateDeb, $reservation->dateFin],
+                    'adultsCount' => $request->adultsCount,
+                    'childrenCount' => $request->childrenCount
+                ]),
+            ]);
+            
+            // Mettre à jour avec le numéro de facture
+            $facture->update([
+                'numero_facture' => $facture->id,
+            ]);
+            
+        
+        // IMPORTANT: Stocker les objets complets dans la session
+        session(['reservation' => $reservation, 'facture' => $facture]);
+        
+        // Rediriger vers la page de confirmation
+        return redirect()->route('reservation.confirm'); */
+
+        /* try {
+            // Créer la facture avec absolument aucune mention de relations
+            $factureController = new FactureController();
+            $factureData = $factureController->genererFactureApresReservation($reservation);
+            $facture = Facture::create([
+                'reservation_id' => $reservation->id,
+                'numero_facture' => 0,
+                'montant_total' => $request->totalPayer,
+                'date_emission' => now(),
+                'details' => json_encode([
+                    'chambres' => $reservation->chambres,
+                    'services' => $reservation->services,
+                    //'chambres' => [], // Tableau vide pour déboguer
+                    //'services' => [],
+                    'dates' => [$reservation->dateDeb, $reservation->dateFin],
+                    'adultsCount' => $request->adultsCount,
+                    'childrenCount' => $request->childrenCount
+                ]),
+            ]);
+            
+            // Mettre à jour le numéro de facture
+            $facture->update([
+                'numero_facture' => $facture->id,
+            ]);
+            
+            // Stocker uniquement les IDs dans la session
+            session(['reservation_id' => $reservation->id, 'facture_id' => $facture->id]);
+            
+            // Rediriger
+            return redirect()->route('reservation.confirm');
+            
+        } catch (\Exception $e) {
+            // Logger l'erreur avec toutes les informations
+            \Log::error('Erreur précise : ' . $e->getMessage());
+            \Log::error('Ligne : ' . $e->getLine());
+            \Log::error('Fichier : ' . $e->getFile());
+            
+            // Retourner une erreur
+            return back()->with('error', 'Une erreur est survenue : ' . $e->getMessage());
+        } */
+
+        try {
+            $factureController = new FactureController();
+            $factureData = $factureController->genererFactureApresReservation($reservation);
+            
+            // S'assurer que la facture a été créée
+            if ($factureData && isset($factureData['facture'])) {
+                $facture = $factureData['facture'];
+                
+                // Stocker les IDs dans la session pour la page de confirmation
+                session(['reservation_id' => $reservation->id, 'facture_id' => $facture->id,'adultsCount' => $reservation->adultsCount,
+            'childrenCount' => $reservation->childrenCount]);
+                
+                return redirect()->route('reservation.confirm');
+            }
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la génération de la facture: ' . $e->getMessage());
+        }
+        
+        // Redirection en cas d'échec de la facture (on continue quand même)
+        session(['reservation_id' => $reservation->id]);
+        return redirect()->route('reservation.confirm');
+
+    
+    
+    }
+
+
+
 
     //stockage par le biais d'un formulaire de la part du réceptionniste
     /* public function store(Request $request)
@@ -522,9 +677,13 @@ public function mesReservations()
         // Récupérer les services supplémentaires
         $supplementaires = Supplementaire::all();
 
+        $categories=Categorie::all();
+        $categoriesMap = $categories->keyBy('id')->toArray();
+
         return view('client.reservation', [
-            'chambres' => $chambres,
-            'supplementaires' => $supplementaires
+            'rooms' => $chambres,
+            'services' => $supplementaires,
+            'categoriesMap'=>$categoriesMap,
         ]);
     }
 

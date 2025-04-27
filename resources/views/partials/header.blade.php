@@ -16,15 +16,15 @@
     <!-- Register / Login et icônes -->
     <div class="flex items-center space-x-4">
       @guest
-        <a href="{{ route('register') }}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Register</a>
+        <a href="{{ route('register') }}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">S'inscrire</a>
         <span class="text-[#95714F]">|</span>
-        <a href="{{ route('login') }}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Login</a>
+        <a href="{{ route('login') }}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Se connecter</a>
       @endguest
       @auth
       <span class="text-[#95714F] text-sm">Bonjour, {{ Auth::user()->name }}</span>
       <span class="text-[#95714F]">|</span>
       <!--<a href="{{-- route('profile') --}}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Profile</a>-->
-      <a href="#" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Profile</a>
+      <a href="{{ route('client.profil') }}" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">Profil</a>
       <span class="text-[#95714F]">|</span>
       <a href="{{-- route('logout') --}}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 no-underline text-sm">
         Déconnexion

@@ -31,7 +31,21 @@ class Chambre extends Model
         // return $this->belongsTo(Categorie::class, 'categorie_id');
         return $this->belongsTo(Categorie::class);
     }
-
+    // Relation avec l'historique
+    public function historiques()
+    {
+        return $this->hasMany(Historique::class);
+    }
+    /* public function chambres()
+    {
+        return $this->belongsToMany(Chambre::class, 'historiques', 'reservation_id', 'chambre_id')
+                    ->withTimestamps();
+    } */
+    public function chambres()
+    {
+        return $this->belongsToMany(Chambre::class, 'historiques', 'reservation_id', 'chambre_id')
+                    ->withTimestamps();
+    }
 
      /**
      * Vérifie si la chambre est disponible pour les dates spécifiées

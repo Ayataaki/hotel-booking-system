@@ -21,7 +21,7 @@
 @section('content')
 <!-- Main Content -->
 <main class="flex-grow flex items-center justify-center py-16 px-4 bg-cover bg-center bg-fixed relative"
-      style="background-image: url('https://images.unsplash.com/photo-1519690889869-e705e59f72e1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')">
+      style="background-image: url('{{ asset('images/hotel_5.jpg') }}')">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
   <!-- Decorative elements -->
@@ -35,23 +35,19 @@
       <p class="text-gray-600">Connectez-vous à votre compte</p>
     </div>
 
-    <form id="login-form" method="POST" action="{{ route('login') }}" class="space-y-6">
+    <!--<form id="login-form" action="{{-- route('login.post') --}}" method="POST" class="space-y-6">
       @csrf
 
       <div class="mb-4">
         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
         <input type="email" id="email" name="email" placeholder="votre@email.com" required
               class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
-        @error('email')
-          <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-        @enderror
       </div>
 
       <div class="mb-2">
         <div class="flex items-center justify-between mb-1">
           <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
-          <!-- ici il faut configurer la route s'il y en a, sinon on laisse la route par défaut de laravel -->
-          <a href="{{ route('password.request') }}" class="text-xs text-[#95714F] hover:text-[#6d4927] no-underline hover:underline transition-colors duration-300">Mot de passe oublié?</a>
+          <a href="#" class="text-xs text-[#95714F] hover:text-[#6d4927] no-underline hover:underline transition-colors duration-300">Mot de passe oublié?</a>
         </div>
         <div class="relative">
           <input type="password" id="password" name="password" placeholder="••••••••" required
@@ -67,9 +63,6 @@
             </svg>
           </button>
         </div>
-        @error('password')
-          <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-        @enderror
       </div>
 
       <div class="flex items-center mb-6">
@@ -80,14 +73,35 @@
       <button type="submit" class="w-full py-3 px-4 bg-[#95714F] text-white rounded-lg font-medium hover:bg-[#6d4927] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#95714F] transform hover:-translate-y-0.5 transition-all duration-300">
         Se connecter
       </button>
-    </form>
+    </form>-->
 
+    <form action="{{ route('login.post') }}" method="POST">
+      @csrf
+      <div class="mb-3">
+          <label for="email" class="form-label">E-mail :</label>
+          <input type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+      </div>
+
+      <div class="mb-3">
+          <label for="password" class="form-label">Mot de passe :</label>
+          <input type="password" class="form-control" name="password" required>
+      </div>
+
+      <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary">Se connecter</button>
+      </div>
+
+      <div class="text-center mt-3">
+          <p>Pas encore inscrit ? <a href="{{ route('register') }}">Créez un compte</a></p>
+      </div>
+  </form>
+  
     <div class="mt-8 text-center">
       <p class="text-gray-600 text-sm">Ou connectez-vous avec</p>
       <div class="flex justify-center space-x-4 mt-4">
         <a href="#" class="flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h2.773l-.443 2.89h-2.33v8.385C19.612 23.027 24 18.062 24 12.073z"/>
           </svg>
         </a>
         <a href="#" class="flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -134,14 +148,20 @@
       }
     });
 
-    // Form submission animation
+    // Simulation d'une soumission de formulaire pour le prototype
     document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault(); // Empêche la soumission réelle du formulaire
+
+      // Simule le traitement
       const submitButton = e.submitter;
       submitButton.textContent = 'Connexion en cours...';
       submitButton.disabled = true;
+
+      // Simule une redirection après 1.5 secondes
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1500);
     });
   });
 </script>
 @endsection
-
-

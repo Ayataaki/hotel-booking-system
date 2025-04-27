@@ -45,23 +45,39 @@
       <p class="text-gray-600">Rejoignez LA MI CASA pour bénéficier d'offres exclusives</p>
     </div>
 
-    <!--<form id="register-form" method="POST" action="{{-- route('register') --}}" class="space-y-6">-->
     <form id="register-form" method="POST" action="{{ route('register.post') }}" class="space-y-6">
       @csrf
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur <span class="text-red-500">*</span></label>
-          <input type="text" id="firstname" name="name" placeholder="Jean" required
+          <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Prénom <span class="text-red-500">*</span></label>
+          <input type="text" id="firstname" name="firstname" placeholder="Jean" required
                 class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F] @error('firstname') border-red-500 @enderror">
           @error('firstname')
             <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
           @enderror
         </div>
 
-        <!--j'ai enlevé le champs nom & prénom et j'ai mis nom d'utilisateur-->
+        <div>
+          <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Nom <span class="text-red-500">*</span></label>
+          <input type="text" id="lastname" name="lastname" placeholder="Dupont" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F] @error('lastname') border-red-500 @enderror">
+          @error('lastname')
+            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+          @enderror
+        </div>
+      </div> --}}
 
-      <div class="mb-6">
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur <span class="text-red-500">*</span></label>
+        <input type="text" id="username" name="name" placeholder="jeandupont" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F] @error('name') border-red-500 @enderror">
+        @error('name')
+          <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+        @enderror
+      </div>
+
+      <div>
         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
         <input type="email" id="email" name="email" placeholder="votre@email.com" required
               class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F] @error('email') border-red-500 @enderror">
@@ -69,12 +85,11 @@
           <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
         @enderror
       </div>
-
       
       <!--pour que le type d'utilisateur soit client-->
       <input type="hidden" name="userType" value="client">
 
-      <div class="mb-6">
+      <div>
         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe <span class="text-red-500">*</span></label>
         <div class="relative">
           <input type="password" id="password" name="password" placeholder="••••••••" required
@@ -106,7 +121,14 @@
         </div>
       </div>
 
-      <div class="mb-6">
+      <div>
+        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe <span class="text-red-500">*</span></label>
+        <input type="password" id="password_confirmation" name="password_confirmation" placeholder="••••••••" required
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]">
+      </div>
+
+
+      <div>
         <label for="newsletter" class="flex items-start">
           <input type="checkbox" id="newsletter" name="newsletter" class="mt-1 h-4 w-4 text-[#95714F] rounded border-gray-300 focus:ring-[#95714F]">
           <span class="ml-2 block text-sm text-gray-700">
@@ -115,7 +137,7 @@
         </label>
       </div>
 
-      <div class="bg-[#F3ECE3] rounded-lg p-6 mb-6">
+      <div class="bg-[#F3ECE3] rounded-lg p-6">
         <div class="space-y-4">
           <div class="flex items-start">
             <input type="checkbox" id="terms" name="terms" required class="mt-1 h-4 w-4 text-[#95714F] rounded border-gray-300 focus:ring-[#95714F]">
@@ -133,7 +155,7 @@
         </div>
       </div>
 
-      <p class="text-sm text-gray-600 mb-8">
+      <p class="text-sm text-gray-600">
         En créant un compte, vous acceptez que vos données personnelles soient traitées conformément à notre politique de confidentialité. Vous pouvez exercer vos droits d'accès, de rectification et de suppression à tout moment.
       </p>
 
@@ -214,6 +236,18 @@
           passwordStrength.classList.add('bg-green-500');
           passwordStrength.classList.remove('bg-red-500', 'bg-yellow-500');
           strengthStrong.classList.remove('hidden');
+        }
+      });
+    }
+
+    // Password confirmation validation
+    const passwordConfirmField = document.getElementById('password_confirmation');
+    if (passwordField && passwordConfirmField) {
+      passwordConfirmField.addEventListener('input', () => {
+        if (passwordField.value !== passwordConfirmField.value) {
+          passwordConfirmField.classList.add('border-red-500');
+        } else {
+          passwordConfirmField.classList.remove('border-red-500');
         }
       });
     }

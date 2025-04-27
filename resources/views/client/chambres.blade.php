@@ -21,38 +21,12 @@
     
     <!-- Grille des chambres -->
     <div class="grid md:grid-cols-3 gap-12 max-w-[100%] card">
-        {{-- @foreach($chambres as $chambre)
-            <div class="bg-white shadow-xl rounded-2xl overflow-hidden transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl h-[520px]">
-                <!-- Badge de disponibilité -->
-                @if($chambre->status == 0)
-                    <div class="absolute top-2 left-2 z-10">
-                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Disponible</span>
-                    </div>
-                @else
-                    <div class="absolute top-2 left-2 z-10">
-                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">Occupée</span>
-                    </div>
-                @endif
-                
-                <!-- Contenu de la chambre -->
-                <div class="p-6 flex flex-col h-[256px]">
-                    <h3 class="text-xl font-bold text-[#95714F]">
-                        {{ ucfirst(optional($chambre->categorie)->typeChambre) }}
-                    </h3>
-                    <!-- Autres éléments statiques... -->
-                </div>
-            </div>
-        @endforeach --}}
-
-
-
-
             @foreach($chambres as $chambre)
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl h-[520px]" x-data="{ showDetails: false }">
                 <!-- Image de la chambre -->
                 <div class="relative overflow-hidden group cursor-pointer h-64">
-                    <img src="{{ $chambre->image ? asset('storage/images/chambres/' . $chambre->image) : asset('images/chambre_standard_1.jpg') }}" 
-                        alt="Chambre {{ ucfirst(optional($chambre->categorie_id)->typeChambre) }}"
+                    <img src="{{ $chambre->image ? asset('images/' .$chambre->image): asset('images/chambre_standard_1.jpg') }}" 
+                        alt="Chambre {{ ucfirst($chambre->categorie->typeChambre ?? 'Standard') }}"
                         class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                     
                     <div class="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -60,7 +34,7 @@
                     </div>
                     
                     <div class="absolute top-4 right-4 bg-[#95714F] text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-                        {{ optional($chambre->categorie_id)->typeChambre ?? 'Standard' }}
+                        {{ $chambre->categorie->typeChambre ?? 'Standard' }}
                     </div>
                 </div>
                 
@@ -74,7 +48,7 @@
                     <div class="flex-grow overflow-y-auto my-2" style="scrollbar-width: thin">
                         <!-- Description de la catégorie -->
                         <p class="text-sm text-gray-600">
-                            {{ optional($chambre->categorie_id)->description ?? 'Chambre confortable et accueillante' }}
+                            {{ $chambre->categorie->description ?? 'Chambre confortable et accueillante' }}
                         </p>
                         
                         <!-- Capacité de la chambre -->
@@ -144,23 +118,16 @@
                             class="flex-1 text-center text-[#95714F] border border-[#95714F] hover:bg-[#95714F] hover:text-white font-medium py-2 px-2 rounded-lg transition-colors duration-300">
                             <span x-text="showDetails ? 'Masquer' : 'Détails'"></span>
                         </button>
-                        <a href="{{ route('reservation') }}?chambre={{ $chambre->id }}"
+                        {{-- <a href="{{ route('reservation') }}?chambre={{ $chambre->id }}"
                             class="flex-1 text-center {{ $chambre->status == 0 ? 'bg-[#95714F] hover:bg-[#6d4927] text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed' }} font-medium py-2 px-2 rounded-lg transition-colors duration-300">
                             Réserver
-                        </a>
+                        </a> --}}
                     </div>
                 </div>
             </div>
         @endforeach
 
     </div>
-    <!-- Une fonctionnalité simple avec Alpine.js -->
-    {{-- <div x-data="{ open: false }">
-        <button @click="open = !open">Voir les détails</button>
-        <div x-show="open" x-transition>
-            <!-- Détails qui s'affichent/se masquent -->
-        </div>
-    </div> --}}
 </section>
 
 @endsection

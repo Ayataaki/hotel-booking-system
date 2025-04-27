@@ -137,36 +137,36 @@ class ChambreController extends Controller
         ]);
         //its route : Route::get('/user/{id}', [UserController::class, 'show']);
     } */
-    // public function index(Request $request)
-    // {
+    public function index(Request $request)
+     {
         // Récupération de toutes les catégories pour le filtre
-        // $categories = Categorie::all();
+         $categories = Categorie::all();
 
         // Initialisation de la requête de base
-        // $query = Chambre::with('categorie');
+         $query = Chambre::with('categorie');
 
         // Filtrage par catégorie si demandé
-        // if ($request->has('categorie')) {
-        //     $query->where('categorie_id', $request->categorie);
-        // }
+         if ($request->has('categorie')) {
+             $query->where('categorie_id', $request->categorie);
+         }
 
         // Récupération des chambres
-        // $chambres = $query->get();
+         $chambres = $query->get();
 
 
 
 
-        // $query = Chambre::query();
+         $query = Chambre::query();
 
-        // if ($request->filled('type')) {
-        //     $query->where('categorie_id', $request->type);
-        // }
+         if ($request->filled('type')) {
+             $query->where('categorie_id', $request->type);
+         }
 
-        // if ($request->filled('status')) {
-        //     $query->where('status', $request->status);
-        // }
+         if ($request->filled('status')) {
+             $query->where('status', $request->status);
+         }
 
-        // $chambres = $query->get();
+         $chambres = $query->get();
 
 
 
@@ -174,8 +174,8 @@ class ChambreController extends Controller
         //dd($chambres->count(), $chambres->toArray());
 
         // Passage des données à la vue
-        // return view('client.chambres', compact('chambres', 'categories'));
-    // }
+         return view('client.chambres', compact('chambres', 'categories'));
+    }
 
 
     // public function index(Request $request)
@@ -198,7 +198,7 @@ class ChambreController extends Controller
     //         'selectedStatus' => $request->input('status')
     //     ]);
     // }
-    public function index(Request $request)
+    public function indexAdmin(Request $request)
     {
         $query = Chambre::query();
 
@@ -285,7 +285,7 @@ class ChambreController extends Controller
 
         // Retourner la vue avec les chambres
         return view('client.chambres', compact('chambres', 'categories'));
-    }
+    } 
 
 
     /**

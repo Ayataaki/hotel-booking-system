@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Posseder extends Model
 {
     use HasFactory;
-    protected $fillable = [,
+    protected $fillable = [
         'reservation_id',
         'supplementaire_id'
     ];

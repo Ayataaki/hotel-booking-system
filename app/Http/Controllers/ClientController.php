@@ -4,7 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Client;
+use App\Models\Chambre;
+use App\Models\Historique;
+use App\Models\Commentaire;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
@@ -104,6 +109,35 @@ class ClientController extends Controller
     public function destroy(Client $client)
     {
         //
+    }
+
+    public function profile(){
+
+        $user = Auth::user();
+    
+        // Récupérer les clients associés à cet utilisateur
+        $clients = Client::where('utilisateur_id', $user->id)->get();
+
+        // Extraire uniquement les IDs des clients
+        $clientIds = $clients->pluck('id')->toArray();
+
+        // Récupérer les réservations associées à ces clients
+        $reservations = Reservation::whereIn('client_id', $clientIds)->get();
+
+        $reservationIds=$reservations->pluck('id')->toArray();
+
+        $chambres=Chambre::whereIn('reservation_id',$reservationIds)->get();
+        
+        $historiques=Historique::whereIn('reservation_id',$reservationIds)->get();
+
+        $historiques = Historique::whereIn('reservation_id', $reservationIds)
+            ->with(['chambre.categorie', 'reservation'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $commentaires=Commentaire::where('utilisateur_id', $user->id)->get();
+
+        return view("client.profile",compact('reservations','user','chambres','historiques','commentaires'));
     }
 
 
