@@ -137,6 +137,78 @@ class Chambre extends Model
     }
 
 
+    /**
+     * Relation avec les réservations du réceptionniste
+     */
+    public function reservationsReceptionniste()
+    {
+        return $this->belongsToMany(ReservationReceptionniste::class, 'historiques_receptionniste', 'chambre_id', 'reservation_receptionniste_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Relation avec les historiques du réceptionniste
+     */
+    public function historiquesReceptionniste()
+    {
+        return $this->hasMany(HistoriqueReceptionniste::class);
+    }
+
+    /**
+     * Vérifie si la chambre est disponible pour les dates spécifiées (pour réservations réceptionniste)
+     */
+    public function isAvailableForReceptionistDates($dateArrivee, $dateDepart)
+    {
+        // Si la chambre n'est pas disponible (status != 1), elle n'est pas disponible
+        if ($this->status != 1) {
+            return false;
+        }
+
+        // Convertir les dates en objets Carbon pour faciliter les comparaisons
+        $arrivee = Carbon::parse($dateArrivee);
+        $depart = Carbon::parse($dateDepart);
+
+        // Vérifier s'il existe des réservations en ligne qui se chevauchent
+        $reservationOnlineCount = $this->historiques()
+            ->whereHas('reservation', function ($query) use ($arrivee, $depart) {
+                $query->where(function ($q) use ($arrivee, $depart) {
+                    $q->where(function ($q) use ($arrivee, $depart) {
+                        $q->where('dateDeb', '>=', $arrivee)
+                        ->where('dateDeb', '<', $depart);
+                    })->orWhere(function ($q) use ($arrivee, $depart) {
+                        $q->where('dateFin', '>', $arrivee)
+                        ->where('dateFin', '<=', $depart);
+                    })->orWhere(function ($q) use ($arrivee, $depart) {
+                        $q->where('dateDeb', '<=', $arrivee)
+                        ->where('dateFin', '>=', $depart);
+                    });
+                });
+            })
+            ->count();
+
+        // Vérifier s'il existe des réservations réceptionniste qui se chevauchent
+        $reservationReceptionnisteCount = $this->historiquesReceptionniste()
+            ->whereHas('reservationReceptionniste', function ($query) use ($arrivee, $depart) {
+                $query->where(function ($q) use ($arrivee, $depart) {
+                    $q->where(function ($q) use ($arrivee, $depart) {
+                        $q->where('dateDeb', '>=', $arrivee)
+                        ->where('dateDeb', '<', $depart);
+                    })->orWhere(function ($q) use ($arrivee, $depart) {
+                        $q->where('dateFin', '>', $arrivee)
+                        ->where('dateFin', '<=', $depart);
+                    })->orWhere(function ($q) use ($arrivee, $depart) {
+                        $q->where('dateDeb', '<=', $arrivee)
+                        ->where('dateFin', '>=', $depart);
+                    });
+                })
+                ->where('statut', '!=', 'annulée');
+            })
+            ->count();
+
+        // La chambre est disponible s'il n'y a pas de réservations qui se chevauchent
+        return $reservationOnlineCount === 0 && $reservationReceptionnisteCount === 0;
+    }
+
 
 
 }

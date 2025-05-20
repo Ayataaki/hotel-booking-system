@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountControllerAdmin;
 use App\Models\Client;
 use App\Models\Reservation;
 use App\Models\Supplementaire;
@@ -11,13 +12,20 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ChambreController;
+use App\Http\Controllers\ChambreControllerAdmin;
+use App\Http\Controllers\ReceptionnisteControllerAdmin;
+use App\Http\Controllers\ReservationControllerAdmin;
+use App\Http\Controllers\ReceptionController;
 // Le nouveau qu'Anas a crée :
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\CommentaireController;
+use App\Http\Controllers\FactureControllerReceptionniste;
 use App\Http\Controllers\ReservationController;
-use App\Http\Controllers\ReceptionnisteController;
+// use App\Http\Controllers\ReceptionnisteController;
 use App\Http\Controllers\SupplementaireController;
+use App\Http\Controllers\ReservationControllerReceptionniste;
+use App\Http\Controllers\ServiceSupplementaireControllerAdmin;
 
 // Routes publiques pour l'interface client
 Route::get("/", [HomeController::class, "index"])->name("home");
@@ -75,17 +83,58 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/rooms', [App\Http\Controllers\AdminController::class, 'rooms'])->name('admin.rooms');
     Route::get('/admin/staff', [App\Http\Controllers\AdminController::class, 'staff'])->name('admin.staff');
-    Route::get('/admin/reservations', [App\Http\Controllers\AdminController::class, 'reservations'])->name('admin.reservations');
+    // Route::get('/admin/reservations', [App\Http\Controllers\AdminController::class, 'reservations'])->name('admin.reservations');
 
     //La gestion des chambres.
-    Route::put('/admin/chambres/{id}', [ChambreController::class, 'update']);
-    Route::delete('/admin/chambres/{id}', [ChambreController::class, 'destroy'])->name('destroy');
-    Route::post('/admin/chambres', [ChambreController::class, 'store']);
-    Route::get('/admin/chambres', [ChambreController::class, 'index'])->name('admin.rooms');
+    // Route::put('/admin/chambres/{id}', [ChambreControllerAdmin::class, 'update']);
+    // Route::post('/admin/chambres', [ChambreControllerAdmin::class, 'update']);
+    // Route::put('/admin/chambres/{id}', [ChambreControllerAdmin::class, 'update']);
+    // Dans web.php
+    // Route::match(['put', 'post'], '/admin/chambres/{id}', [ChambreControllerAdmin::class, 'update'])->name('admin.chambres.update');
+
+// Route::put('/admin/chambres/{id}', [ChambreControllerAdmin::class, 'update']);
+// Route::post('/admin/chambres/{id}', [ChambreControllerAdmin::class, 'update']); // Pour la compatibilité avec fetch
+    Route::post('/admin/chambres/update', [ChambreControllerAdmin::class, 'update'])->name('admin.chambres.update');
+    Route::delete('/admin/chambres/{id}', [ChambreControllerAdmin::class, 'destroy'])->name('destroy');
+    Route::post('/admin/chambres', [ChambreControllerAdmin::class, 'store']);
+    Route::get('/admin/chambres', [ChambreControllerAdmin::class, 'index'])->name('admin.rooms');
 
 
     //La gestion des personnels.
-    Route::get('/admin/staff', [ReceptionnisteController::class, 'index'])->name('admin.staff');
+    Route::get('/admin/staff', [ReceptionnisteControllerAdmin::class, 'index'])->name('admin.staff');
+    Route::post('/admin/staff/update', [ReceptionnisteControllerAdmin::class, 'update'])->name('admin.staff.update');
+    Route::post('/admin/staff/add', [ReceptionnisteControllerAdmin::class, 'store'])->name('admin.staff.add');
+    // Route::delete('/admin/staff/{id}', [ReceptionnisteControllerAdmin::class, 'destroy'])->name('admin.staff.delete');
+    // Par celle-ci (qui utilise POST avec un paramètre _method)
+    Route::post('/admin/staff/delete', [ReceptionnisteControllerAdmin::class, 'destroy'])->name('admin.staff.delete');
+    // Route de test :
+    // Route::post('/admin/test-delete', function (\Illuminate\Http\Request $request) {
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Test suppression réussie',
+    //         'id_recu' => $request->id,
+    //     ]);
+    // });
+
+    Route::get('/admin/reservations', [ReservationControllerAdmin::class, 'index'])->name('admin.reservations');
+    Route::get('/admin/reservations/{id}', [ReservationControllerAdmin::class, 'viewChambre'])->name('getChambreDetails');
+    // Route::post('/admin/reservations/store', [ReservationControllerAdmin::class, 'store'])->name('admin.reservations.store');
+
+    // Routes pour les services supplémentaires
+    Route::get('/admin/services', [ServiceSupplementaireControllerAdmin::class, 'index'])->name('admin.services');
+    Route::post('/admin/services', [ServiceSupplementaireControllerAdmin::class, 'store'])->name('admin.services.store');
+    Route::put('/admin/services/{id}', [ServiceSupplementaireControllerAdmin::class, 'update'])->name('admin.services.update');
+    Route::delete('/admin/services/{id}', [ServiceSupplementaireControllerAdmin::class, 'destroy'])->name('admin.services.destroy');
+
+    // Pour la gestion du compte de l'admin
+    Route::get('/admin/account', [AccountControllerAdmin::class, 'show'])->name('admin.account');
+    Route::put('/admin/account', [AccountControllerAdmin::class, 'update'])->name('admin.account.update');
+    // Route::get('/admin/account', [AccountControllerAdmin::class, 'show'])->name('admin.account');
+    // Route::get('/admin/account', [App\Http\Controllers\Admin\AccountControllerAdmin::class, 'show'])->name('admin.account');
+    // Route::put('/admin/account', [App\Http\Controllers\Admin\AccountControllerAdmin::class, 'update'])->name('admin.account.update');
+    // Route::get('/admin/account', [AccountControllerAdmin::class, 'show'])->name('admin.account');
+    // Route::put('/admin/account', [AccountControllerAdmin::class, 'update'])->name('admin.account.update');
+
 
 
 
@@ -103,10 +152,81 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 
 
+
+
+
 // Réceptionniste uniquement
+// Routes pour le réceptionniste
 Route::middleware(['auth', 'role:recep'])->group(function () {
-    Route::get('/reception/dashboard', [ReceptionController::class, 'dashboard'])->name('reception.dashboard');
+    // Dashboard
+        // Route::get('/reception/dashboard', [ReceptionController::class, 'dashboard'])->name('reception.dashboard');
+    // Dashboard
+    // Route::get('/reception/dashboard', [ReceptionController::class, 'dashboard'])->name('reception.dashboard');
+
+    // Route pour le dashboard qui redirige vers les chambres
+    Route::get('/reception/dashboard', function () {
+        return redirect()->route('reception.chambres.disponibles');
+    })->name('reception.dashboard');
+
+    // Chambres
+    Route::get('/reception/chambres/disponibles', [ReceptionController::class, 'chambresDisponibles'])->name('reception.chambres.disponibles');
+    Route::get('/reception/chambres/disponibles', [ReceptionController::class, 'filtrerChambres'])->name('reception.chambres.disponibles');
+    // Route::get('/reception/chambres/disponibles', [ReceptionController::class, 'getChambresDisponibles']);
+    // Route::get('/reception/chambres/{id}', [ReceptionController::class, 'getChambreDetails']);
+
+    Route::get('/reception/reservations/create', [ReceptionController::class, 'createReservation'])->name('reception.reservations.create');
+    // Route::post('/reception/reservations', [ReservationController::class, 'store'])->name('reception.reservations.store');
+
+
+
+    // Réservations
+    Route::get('/reception/reservations', [ReceptionController::class, 'indexReservations'])->name('reception.reservations');
+    Route::get('/reception/reservations/create', [ReceptionController::class, 'createReservation'])->name('reception.reservations.create');
+    // Route::post('/reception/reservations', [ReceptionController::class, 'storeReservation'])->name('reception.reservations.store');
+
+    //Pour la facture:
+    // Route::get('/reception/reservations/confirmation', [FactureControllerReceptionniste::class, 'showConfirmReception'])->name('reception.confirmation');
+    // Route pour le FactureControllerReceptionniste
+    // Route::get('/reception/reservations/confirmation', [FactureControllerReceptionniste::class, 'showConfirmReception'])
+    //     ->name('reception.confirmation');
+    Route::get('/reception/reservations/confirmation', [FactureControllerReceptionniste::class, 'showConfirmReception'])
+    ->name('reception.confirmation');
+
+    // Route::get('/reception/reservations/confirmation', function(Request $request) {
+    //     return view('reception.reservations.confirmation');
+    // })->name('reception.confirmation');
+
+    // Route pour télécharger la facture
+    Route::get('/facture/telecharger/{id}', [FactureControllerReceptionniste::class, 'download'])
+        ->name('facture.download');
+
+
+    // Route::get('/reception/reservations/confirmation', function () {
+    //     return view('reception.reservations.confirmation');
+    // })->name('reception.confirmation');
+    // Route::get('/reception/reservations/confirmation', [ReceptionController::class, 'confirmation'])
+    // ->name('reception.confirmation');
+
+
+    Route::post('/reception/reservations', [ReceptionController::class, 'storeReservation'])->name('reception.reservations.store');
+    // Route::get('/reception/reservations/{id}', [ReceptionContro ller::class, 'showReservation'])->name('reception.reservations.show');
+    // Route::put('/reception/reservations/{id}/status', [ReceptionController::class, 'updateStatus'])->name('reception.reservations.update-status');
+    // Route::put('/reception/reservations/{id}/cancel', [ReceptionController::class, 'cancelReservation'])->name('reception.reservations.cancel');
+    // Route::post('/reception/reservations/{id}/notes', [ReceptionController::class, 'addNote'])->name('reception.reservations.add-note');
+    Route::get('/reception/reservations', [ReservationControllerReceptionniste::class, 'index'])->name('reception.reservations');
+    Route::put('/reception/reservations/update', [ReservationControllerReceptionniste::class, 'update'])->name('reception.reservations.update');
+    Route::delete('/reception/reservations/destroy', [ReservationControllerReceptionniste::class, 'destroy'])->name('reception.reservations.destroy');
+
+    // Route::post('/reception/reservations', [ReceptionController::class, 'storeReservation'])->name('reception.reservations.store');
+
+    // API pour la recherche de clients
+    Route::get('/reception/api/clients', [ReceptionController::class, 'searchClients']);
+    Route::get('/reception/api/chambres/{id}', [ReceptionController::class, 'getChambreDetails']);
+
 });
+// Route::middleware(['auth', 'role:recep'])->group(function () {
+//     Route::get('/reception/dashboard', [ReceptionController::class, 'dashboard'])->name('reception.dashboard');
+// });
 
 
 
@@ -114,10 +234,10 @@ Route::middleware(['auth', 'role:recep'])->group(function () {
 /* Route::get('/test-pdf', function() {
     // Utilisez la façade (recommandé)
     $pdf = Pdf::loadHTML('<h1>Test PDF</h1>');
-    
+
     $path = storage_path('app/public/test.pdf');
     $pdf->save($path);
-    
+
     if (file_exists($path)) {
         return response()->download($path, 'test.pdf');
     } else {
@@ -142,24 +262,24 @@ Route::get('/preview-template', function() {
 /* Route::get('/test-template', function() {
     // Récupérer une réservation existante
     $reservation = App\Models\Reservation::first();
-    
+
     // Récupérer manuellement les données
     $chambres = DB::table('historiques')
         ->join('chambres', 'historiques.chambre_id', '=', 'chambres.id')
         ->where('historiques.reservation_id', $reservation->id)
         ->select('chambres.*')
         ->get();
-        
+
     $services = DB::table('posseders')
         ->join('supplementaires', 'posseders.supplementaire_id', '=', 'supplementaires.id')
         ->where('posseders.reservation_id', $reservation->id)
         ->select('supplementaires.*')
         ->get();
-    
+
     $client = DB::table('clients')
         ->where('id', $reservation->client_id)
         ->first();
-    
+
     // Afficher le template dans le navigateur
     return view('factures.template', [
         'facture' => [
@@ -183,27 +303,27 @@ Route::get('/test-pdf-generation/{id}', function($id) {
         // Récupérer la facture et la réservation
         $facture = App\Models\Facture::findOrFail($id);
         $reservation = App\Models\Reservation::findOrFail($facture->reservation_id);
-        
+
         // Récupérer les données manuellement
         $chambres = DB::table('historiques')
             ->join('chambres', 'historiques.chambre_id', '=', 'chambres.id')
             ->where('historiques.reservation_id', $reservation->id)
             ->select('chambres.*')
             ->get();
-            
+
         $services = DB::table('posseders')
             ->join('supplementaires', 'posseders.supplementaire_id', '=', 'supplementaires.id')
             ->where('posseders.reservation_id', $reservation->id)
             ->select('supplementaires.*')
             ->get();
-        
+
         $client = DB::table('clients')
             ->where('id', $reservation->client_id)
             ->first();
-            
+
         // Décodez les détails
         $details = json_decode($facture->details, true) ?? [];
-        
+
         // Créer le PDF
         $pdf = Pdf::loadView('factures.template', [
             'facture' => $facture,
@@ -216,26 +336,26 @@ Route::get('/test-pdf-generation/{id}', function($id) {
             'dateDebut' => $reservation->dateDeb,
             'dateFin' => $reservation->dateFin,
         ]);
-        
+
         // Définir le chemin de sauvegarde
         $path = storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'factures'.DIRECTORY_SEPARATOR.'facture-'.$facture->numero_facture.'.pdf');
-        
+
         // Créer le répertoire
         $directory = dirname($path);
         if (!is_dir($directory)) {
             mkdir($directory, 0755, true);
         }
-        
+
         // Sauvegarder le PDF
         $pdf->save($path);
-        
+
         return response()->json([
             'success' => true,
             'path' => $path,
             'file_exists' => file_exists($path),
             'file_size' => file_exists($path) ? filesize($path) : 0
         ]);
-        
+
     } catch (\Exception $e) {
         return response()->json([
             'error' => $e->getMessage(),

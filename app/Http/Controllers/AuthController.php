@@ -30,7 +30,7 @@ class AuthController extends Controller{
         //     //with(): permet de passer des paramètres par le biais d'une variable de session , ça sera session(success)
         //     return redirect("/reservation")->with("success","Successfuly logged in");
         // }
-        
+
         // Vérification des identifiants
         if(Auth::attempt($credentials)){
             $request->session()->regenerate(); // sécurise la session
@@ -39,6 +39,7 @@ class AuthController extends Controller{
 
             return match ($userType) {
                 'admin' => redirect('/admin/dashboard')->with('success', 'Bienvenue Admin !'),
+                // 'recep' => redirect('/reception/chambres/disponibles')->with('success', 'Bienvenue Réceptionniste !'),
                 'recep' => redirect('/reception/dashboard')->with('success', 'Bienvenue Réceptionniste !'),
                 default => redirect('/reservation')->with('success', 'Bienvenue Client !'),
             };
@@ -79,5 +80,5 @@ class AuthController extends Controller{
         $request->session()->regenerateToken();
         return redirect('/login');
 }
-    
+
 }

@@ -131,4 +131,24 @@ class Reservation extends Model
             return $this->belongsToMany(Reservation::class, 'posseders', 'supplementaire_id', 'reservation_id');
         }
 
+
+
+
+    /**
+     * Obtenir les chambres associées à cette réservation.
+     */
+    public function chambres()
+    {
+        return $this->belongsTo(Chambre::class);
+    }
+
+    public function historique()
+    {
+        return $this->hasOne(Historique::class, 'reservation_id', 'id');
+    }
+
+
+
+
+
 }

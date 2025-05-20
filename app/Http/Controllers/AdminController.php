@@ -71,24 +71,52 @@ class AdminController extends Controller
     // Pour rendre la page d'admin dynamique.
     public function dashboard()
     {
-        $totalReservations = Reservation::count();
-        $totalChambres = Chambre::count();
-        $totalEmployes = User::where('userType', 'recep')->count();
-        $totalClients = User::where('userType', 'client')->count();
+        // Récupérer le chiffre d'affaires total
+        $chiffreAffaires = \App\Models\Reservation::sum('soldePayer');
 
-        // $recentReservations = Reservation::latest()->take(5)->get();
-        // $recentReservations = Reservation::with('chambre')->latest()->take(5)->get();
-        $recentReservations = Reservation::with('chambre.categorie')->latest()->take(5)->get();
+        // Nombre total de chambres
+        $totalChambres = \App\Models\Chambre::count();
 
+        // Nombre total d'employés
+        $totalEmployes = \App\Models\Receptionniste::count();
+
+        // Nombre total de clients
+        $totalClients = \App\Models\Client::count();
+
+        // Récupérer les 5 dernières réservations
+        $recentReservations = \App\Models\Reservation::with('client')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
         return view('admin.dashboard', compact(
-            'totalReservations',
+            'chiffreAffaires',
             'totalChambres',
             'totalEmployes',
             'totalClients',
             'recentReservations'
         ));
     }
+    // public function dashboard()
+    // {
+    //     $totalReservations = Reservation::count();
+    //     $totalChambres = Chambre::count();
+    //     $totalEmployes = User::where('userType', 'recep')->count();
+    //     $totalClients = User::where('userType', 'client')->count();
+
+    //     // $recentReservations = Reservation::latest()->take(5)->get();
+    //     // $recentReservations = Reservation::with('chambre')->latest()->take(5)->get();
+    //     $recentReservations = Reservation::with('chambre.categorie')->latest()->take(5)->get();
+
+
+    //     return view('admin.dashboard', compact(
+    //         'totalReservations',
+    //         'totalChambres',
+    //         'totalEmployes',
+    //         'totalClients',
+    //         'recentReservations'
+    //     ));
+    // }
 
     // Pour accéder aux chambres via l'admin.
     public function rooms()
@@ -107,8 +135,17 @@ class AdminController extends Controller
     // Pour accéder aux réservations.
     public function reservations()
     {
-        return view('admin.reservations');
+        // $reservations = Reservation::with(['client', 'chambre'])->latest()->paginate(10);
+        $reservations = Reservation::with(['client', 'historique.chambre'])->paginate(5);
+        return view('admin.reservations', compact('reservations'));
+
     }
+
+    // public function reservations()
+    // {
+    //     return view('admin.reservations');
+    // }
+
 
 
 

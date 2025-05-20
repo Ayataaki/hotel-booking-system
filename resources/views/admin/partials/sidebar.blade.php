@@ -1,4 +1,5 @@
 <!-- resources/views/admin/partials/sidebar.blade.php -->
+ <!-- sidebar for dahsboard -->
 <aside class="sidebar bg-[#EADED0]" :class="{'open': sidebarOpen}">
   <div class="flex flex-col h-full">
     <div class="p-6">
@@ -28,9 +29,11 @@
         </a>
 
         <a href="{{ route('admin.staff') }}" class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
+            <!-- <div class="w-12 h-12 rounded-full bg-[#EADED0] flex items-center justify-center text-[#95714F]"> -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            <!-- </div> -->
           <span>Personnel</span>
         </a>
 
@@ -40,6 +43,15 @@
           </svg>
           <span>Réservations</span>
         </a>
+
+        <!-- Lien vers Services supplémentaires -->
+            <a href="{{ route('admin.services') }}"
+            class="flex items-center px-6 py-2.5 {{ request()->routeIs('admin.services') ? 'bg-[#95714F] border-r-4 border-[#6d4927] text-white' : 'text-[#95714F] hover:bg-[#EADED0]' }} transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            Services supplémentaires
+            </a>
 
         <!-- <a href="#" class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,10 +66,10 @@
     <div class="mt-auto p-4 border-t border-[#C7AF94]">
       <div class="flex items-center space-x-3 mb-4">
         <div class="w-10 h-10 rounded-full bg-[#95714F] flex items-center justify-center text-white">
-          <span>A</span>
+          <span>{{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}</span>
         </div>
         <div>
-          <h4 class="font-medium">Admin Nom</h4>
+          <h4 class="font-medium">{{ strtoupper(Auth::user()->name ?? 'Admin') }}</h4>
           <p class="text-xs">Administrateur</p>
         </div>
       </div>

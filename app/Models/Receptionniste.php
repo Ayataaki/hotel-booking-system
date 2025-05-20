@@ -7,13 +7,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Receptionniste extends Model
 {
+    // use HasFactory;
+    // protected $fillable = [
+    //     'nomRec',
+    //     'prenomRec',
+    //     'CIN',
+    //     'numTel',
+    //     'user_id'
+    // ];
+
     use HasFactory;
+
     protected $fillable = [
-        'nomRec',
         'prenomRec',
-        'CIN',
+        'nomRec',
+        'email',
         'numTel',
-        'user_id'
+        'CIN',
+        'adresse',
+        'statut',
+        'user_id',
+        'created_at',
+        'updated_at'
     ];
 
 }

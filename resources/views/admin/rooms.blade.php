@@ -9,6 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
   <!-- CDN TailWindCSS -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <!-- Ajout du méta tag CSRF -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <style>
     /* Styles spécifiques pour éviter les chevauchements */
     .sidebar {
@@ -94,7 +96,8 @@
                     {{ $chambre->status == 1 ? 'Disponible' : ($chambre->status == 2 ? 'Occupée' : 'Maintenance') }}
                 </span>
                 </div>
-                <p class="text-sm text-gray-600 mb-4">Étage : {{ $chambre->NumEtg }} | Capacité : {{ $chambre->capacite }} personne(s)</p>
+                <!-- <p class="text-sm text-gray-600 mb-4">Étage : {{ $chambre->NumEtg }} | Capacité : {{ $chambre->capacite }} personne(s)</p> -->
+                <p class="text-sm text-gray-600 mb-4">Étage : {{ $chambre->NumEtg }}</p>
                 <div class="flex justify-between text-sm mb-4">
                 <div class="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#95714F] mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,10 +129,11 @@
                             NumCh: '{{ $chambre->NumCh }}',
                             NumEtg: '{{ $chambre->NumEtg }}',
                             status: '{{ $chambre->status }}',
-                            price: '{{ $chambre->prixNuit }}',
+                            prixNuit: '{{ $chambre->prixNuit }}',
                             categorie_id: '{{ $chambre->categorie_id }}',
                             capacite: '{{ $chambre->capacite }}',
-                            name: '{{ $chambre->titre }}'
+                            name: '{{ $chambre->titre }}',
+                            image: '{{ $chambre->image ?? '' }}'
                         }; editRoomModal = true"
                         class="flex-1 bg-[#EADED0] hover:bg-[#C7AF94] text-[#6d4927] text-center py-2 rounded-lg transition-colors text-sm"
                     >
@@ -190,6 +194,7 @@
             <p class="text-center text-gray-500 text-lg">Aucune chambre trouvée.</p>
         </div>
         @endif
+        </div>
 
 
 
@@ -320,95 +325,102 @@
   </div>
 
   <!-- Modale Modification de chambre -->
-  <div x-cloak class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+<div x-cloak class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+     x-show="editRoomModal"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+  <div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto"
        x-show="editRoomModal"
        x-transition:enter="transition ease-out duration-300"
-       x-transition:enter-start="opacity-0"
-       x-transition:enter-end="opacity-100"
+       x-transition:enter-start="opacity-0 transform scale-95"
+       x-transition:enter-end="opacity-100 transform scale-100"
        x-transition:leave="transition ease-in duration-200"
-       x-transition:leave-start="opacity-100"
-       x-transition:leave-end="opacity-0">
-    <div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto"
-         x-show="editRoomModal"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform scale-95"
-         x-transition:enter-end="opacity-100 transform scale-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 transform scale-100"
-         x-transition:leave-end="opacity-0 transform scale-95"
-         @click.away="editRoomModal = false">
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-xl font-bold text-[#6d4927]" x-text="'Modifier ' + (currentRoom ? currentRoom.name : '')"></h3>
-          <button @click="editRoomModal = false" class="text-gray-400 hover:text-gray-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+       x-transition:leave-start="opacity-100 transform scale-100"
+       x-transition:leave-end="opacity-0 transform scale-95"
+       @click.away="editRoomModal = false">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-[#6d4927]" x-text="'Modifier ' + (currentRoom ? (currentRoom.name || 'Chambre ' + currentRoom.NumCh) : '')"></h3>
+        <button @click="editRoomModal = false" class="text-gray-400 hover:text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-        <!-- <form method="POST" :action="'/admin/chambres/' + currentRoom.id" enctype="multipart/form-data"> -->
-        <form @submit.prevent="updateRoom" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.chambres.update') }}" class="space-y-4">
             @csrf
-            @method('PUT')
+            <input type="hidden" name="id" :value="currentRoom ? currentRoom.id : ''">
 
             <!-- Numéro de chambre -->
             <div>
-                <label>Numéro de chambre</label>
-                <input type="text" name="NumCh" :value="currentRoom.NumCh" class="w-full border p-2 rounded">
+            <label class="block text-sm font-medium text-[#6d4927] mb-1">Numéro de chambre</label>
+            <input type="text" name="NumCh" class="w-full p-2 border border-[#C7AF94] rounded-lg"
+                    :value="currentRoom ? currentRoom.NumCh : ''">
             </div>
 
             <!-- Étage -->
             <div>
-                <label>Numéro d'étage</label>
-                <input type="number" name="NumEtg" :value="currentRoom.NumEtg" class="w-full border p-2 rounded">
+            <label class="block text-sm font-medium text-[#6d4927] mb-1">Numéro d'étage</label>
+            <input type="number" name="NumEtg" class="w-full p-2 border border-[#C7AF94] rounded-lg"
+                    :value="currentRoom ? currentRoom.NumEtg : ''">
             </div>
 
             <!-- Statut -->
             <div>
-                <label>Statut</label>
-                <select name="status" class="w-full border p-2 rounded" :value="currentRoom.status">
-                    <option value="1">Disponible</option>
-                    <option value="2">Occupée</option>
-                    <option value="0">Maintenance</option>
-                </select>
+            <label class="block text-sm font-medium text-[#6d4927] mb-1">Statut</label>
+            <select name="status" class="w-full p-2 border border-[#C7AF94] rounded-lg">
+                <option value="1" x-bind:selected="currentRoom && currentRoom.status == 1">Disponible</option>
+                <option value="2" x-bind:selected="currentRoom && currentRoom.status == 2">Occupée</option>
+                <option value="0" x-bind:selected="currentRoom && currentRoom.status == 0">Maintenance</option>
+            </select>
             </div>
 
             <!-- Prix par nuit -->
             <div>
-                <label>Prix par nuit (€)</label>
-                <input type="number" name="prixNuit" :value="currentRoom.price" class="w-full border p-2 rounded">
+            <label class="block text-sm font-medium text-[#6d4927] mb-1">Prix par nuit (€)</label>
+            <input type="number" name="prixNuit" class="w-full p-2 border border-[#C7AF94] rounded-lg"
+                    :value="currentRoom ? (currentRoom.prixNuit || currentRoom.price) : ''">
             </div>
 
             <!-- ID Catégorie -->
             <div>
-                <label>ID Catégorie</label>
-                <input type="number" name="categorie_id" :value="currentRoom.categorie_id" class="w-full border p-2 rounded">
+            <label class="block text-sm font-medium text-[#6d4927] mb-1">Catégorie</label>
+            <input type="number" name="categorie_id" class="w-full p-2 border border-[#C7AF94] rounded-lg"
+                    :value="currentRoom ? currentRoom.categorie_id : ''">
             </div>
 
             <!-- Capacité -->
             <div>
-                <label>Capacité</label>
-                <input type="number" name="capacite" :value="currentRoom.capacite" class="w-full border p-2 rounded">
+            <label class="block text-sm font-medium text-[#6d4927] mb-1">Capacité</label>
+            <input type="number" name="capacite" class="w-full p-2 border border-[#C7AF94] rounded-lg"
+                    :value="currentRoom ? currentRoom.capacite : ''">
             </div>
 
             <!-- Image -->
             <div>
-                <label>Image (facultatif)</label>
-                <input type="file" name="image" class="w-full border p-2 rounded">
+            <label class="block text-sm font-medium text-[#6d4927] mb-1">Nom de l'image</label>
+            <input type="text" name="image" placeholder="ex: chambre_1.jpg" class="w-full p-2 border border-[#C7AF94] rounded-lg"
+                    :value="currentRoom ? currentRoom.image : ''">
             </div>
 
-            <!-- Bouton -->
-            <div class="text-right mt-4">
-                <button type="submit" class="bg-[#95714F] hover:bg-[#6d4927] text-white py-2 px-4 rounded">
-                    Enregistrer
-                </button>
+            <!-- Boutons -->
+            <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="editRoomModal = false" class="px-4 py-2 border border-[#C7AF94] text-[#95714F] rounded-lg hover:bg-[#EADED0]">
+                Annuler
+            </button>
+            <button type="submit" class="px-4 py-2 bg-[#95714F] text-white rounded-lg hover:bg-[#6d4927]">
+                Enregistrer
+            </button>
             </div>
         </form>
-
-      </div>
     </div>
   </div>
+</div>
 
   <!-- Modale Confirmation de suppression -->
   <div x-cloak class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
@@ -461,58 +473,185 @@
             currentRoom: null,
             searchQuery: '',
             searchTriggered: false,
+            // updateRoom() {
+            //     console.log('Début de updateRoom avec:', this.currentRoom);
 
+            //     if (!this.currentRoom || !this.currentRoom.id) {
+            //         alert('Erreur: Impossible de trouver les informations de la chambre');
+            //         console.error('currentRoom invalide:', this.currentRoom);
+            //         return;
+            //     }
+
+            //     const formData = new FormData();
+            //     formData.append('_method', 'PUT');
+            //     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+            //     // Assurer la cohérence des noms de champs
+            //     formData.append('NumCh', this.currentRoom.NumCh);
+            //     formData.append('NumEtg', this.currentRoom.NumEtg);
+            //     formData.append('status', this.currentRoom.status);
+            //     formData.append('prixNuit', this.currentRoom.price || this.currentRoom.prixNuit); // Accepter les deux noms
+            //     formData.append('categorie_id', this.currentRoom.categorie_id);
+            //     formData.append('capacite', this.currentRoom.capacite);
+
+            //     // Ajouter l'image si elle existe
+            //     if (this.currentRoom.image && this.currentRoom.image.trim() !== '') {
+            //         formData.append('image', this.currentRoom.image);
+            //     }
+
+            //     // Log des données envoyées
+            //     console.log('Données envoyées:');
+            //     for (let pair of formData.entries()) {
+            //         console.log(pair[0] + ': ' + pair[1]);
+            //     }
+
+            //     // Faire la requête avec l'ID correct
+            //     const url = `/admin/chambres/${this.currentRoom.id}`;
+            //     console.log('URL de requête:', url);
+
+            //     fetch(url, {
+            //         method: 'POST',
+            //         body: formData
+            //     })
+            //     .then(response => {
+            //         console.log('Statut de réponse:', response.status);
+            //         if (!response.ok) {
+            //             return response.text().then(text => {
+            //                 throw new Error('Erreur serveur: ' + text);
+            //             });
+            //         }
+            //         return response.text();
+            //     })
+            //     .then(data => {
+            //         console.log('Réponse:', data);
+            //         this.editRoomModal = false;
+
+            //         // Afficher un message de succès
+            //         alert('✅ Chambre modifiée avec succès');
+
+            //         // Recharger la page pour voir les changements
+            //         setTimeout(() => window.location.reload(), 300);
+            //     })
+            //     .catch(error => {
+            //         console.error('Erreur:', error);
+            //         alert('❌ Erreur lors de la mise à jour: ' + error.message);
+            //     });
+            // },
+
+//             updateRoom() {
+//     if (!this.currentRoom || !this.currentRoom.id) {
+//         alert('Erreur: Impossible de trouver les informations de la chambre');
+//         return;
+//     }
+
+//     const formData = new FormData();
+//     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+//     formData.append('_method', 'PUT'); // Simuler une requête PUT
+//     formData.append('id', this.currentRoom.id); // Ajouter l'ID de la chambre
+
+//     // Récupérer les valeurs des champs
+//     formData.append('NumCh', this.currentRoom.NumCh);
+//     formData.append('NumEtg', this.currentRoom.NumEtg);
+//     formData.append('status', this.currentRoom.status);
+//     formData.append('prixNuit', this.currentRoom.prixNuit || this.currentRoom.price);
+//     formData.append('categorie_id', this.currentRoom.categorie_id);
+//     formData.append('capacite', this.currentRoom.capacite);
+
+//     // Ajouter l'image si elle existe
+//     if (this.currentRoom.image) {
+//         formData.append('image', this.currentRoom.image);
+//     }
+
+//     // Faire la requête avec la nouvelle route
+//     fetch('/admin/chambres/update', {
+//         method: 'POST',
+//         headers: {
+//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+//         },
+//         body: formData
+//     })
+//     .then(response => {
+//         if (!response.ok) {
+//             throw new Error('Erreur lors de la mise à jour');
+//         }
+//         return response.text();
+//     })
+//     .then(() => {
+//         this.editRoomModal = false;
+//         // Afficher un message de succès
+//         alert('✅ Chambre modifiée avec succès');
+//         // Recharger la page pour voir les changements
+//         setTimeout(() => window.location.reload(), 10);
+//     })
+//     .catch(error => {
+//         console.error('Erreur:', error);
+//         alert('❌ Erreur lors de la mise à jour: ' + error.message);
+//     });
+// }
+// ********************* Code qui marche que si je fais un filtre *********************
             updateRoom() {
-                const formData = new FormData();
-                formData.append('_method', 'PUT');
-                formData.append('_token', '{{ csrf_token() }}');
-                // formData.append('NumCh', this.currentRoom.NumCh);
-                formData.append('NumCh', document.querySelector('input[name=NumCh]').value);
-                formData.append('NumEtg', document.querySelector('input[name=NumEtg]').value);
-                formData.append('status', document.querySelector('select[name=status]').value);
-                formData.append('prixNuit', document.querySelector('input[name=prixNuit]').value);
-                formData.append('categorie_id', document.querySelector('input[name=categorie_id]').value);
-                formData.append('capacite', document.querySelector('input[name=capacite]').value);
-                // formData.append('NumEtg', this.currentRoom.NumEtg);
-                // formData.append('status', this.currentRoom.status);
-                // formData.append('prixNuit', this.currentRoom.price);
-                // formData.append('categorie_id', this.currentRoom.categorie_id);
-                // formData.append('capacite', this.currentRoom.capacite);
-
-                const imageInput = document.querySelector('input[name=image]');
-                if (imageInput && imageInput.files[0]) {
-                    formData.append('image', imageInput.files[0]);
+                if (!this.currentRoom || !this.currentRoom.id) {
+                    alert('Erreur: Impossible de trouver les informations de la chambre');
+                    return;
                 }
 
-                fetch(`/admin/chambres/${this.currentRoom.id}`, {
+                const formData = new FormData();
+                formData.append('_method', 'PUT');
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}');
+
+                // Récupérer les valeurs des champs
+                const numChInput = document.querySelector('input[name=NumCh]');
+                const numEtgInput = document.querySelector('input[name=NumEtg]');
+                const statusSelect = document.querySelector('select[name=status]');
+                const prixNuitInput = document.querySelector('input[name=prixNuit]');
+                const categorieInput = document.querySelector('input[name=categorie_id]');
+                const capaciteInput = document.querySelector('input[name=capacite]');
+                const imageInput = document.querySelector('input[name=image]');
+
+                // Vérifier que tous les champs requis existent
+                if (!numChInput || !numEtgInput || !statusSelect || !prixNuitInput || !categorieInput || !capaciteInput) {
+                    alert('Erreur: Certains champs obligatoires sont manquants');
+                    return;
+                }
+
+                // Ajouter les données au formData
+                formData.append('NumCh', numChInput.value);
+                formData.append('NumEtg', numEtgInput.value);
+                formData.append('status', statusSelect.value);
+                formData.append('prixNuit', prixNuitInput.value);
+                formData.append('categorie_id', categorieInput.value);
+                formData.append('capacite', capaciteInput.value);
+
+                // Ajouter l'image si elle existe et n'est pas vide
+                if (imageInput && imageInput.value.trim() !== '') {
+                    formData.append('image', imageInput.value.trim());
+                }
+
+                // Faire la requête AJAX
+                // fetch(`/admin/chambres/${this.currentRoom.id}`, {
+                fetch(`/admin/chambres/update`, {
                     method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                    },
                     body: formData
                 })
                 .then(res => {
-                    if (!res.ok) throw new Error('Erreur serveur');
+                    if (!res.ok) throw new Error('Erreur serveur: ' + res.status);
                     return res.text();
                 })
                 .then(() => {
-                    this.sidebarOpen = false;
-                    this.editRoomModal = false;
-                    this.deleteRoomModal = false;
-                    this.addRoomModal = false;
-                    this.currentRoom = null;
-
-                    setTimeout(() => location.reload(), 10); // 👌 propre et sans effet flash
+                    // Fermer les modales et rafraîchir la page
+                    this.resetUI();
+                    // Attendre un court instant avant de rafraîchir
+                    setTimeout(() => location.reload(), 10);
                 })
-                // .then(() => {
-                //     alert('✅ Chambre modifiée avec succès !');
-                //     this.editRoomModal = false;
-                //     this.deleteRoomModal = false;
-                //     this.addRoomModal = false;
-
-                //     setTimeout(() => {
-                //         location.reload();
-                //     }, 100); // petit délai pour forcer Alpine à prendre la fermeture
-
-                // })
-                .catch(() => alert('❌ Erreur lors de la mise à jour'));
+                .catch((error) => {
+                    console.error('Erreur lors de la mise à jour:', error);
+                    alert('❌ Erreur lors de la mise à jour: ' + error.message);
+                });
             },
 
             deleteRoom() {

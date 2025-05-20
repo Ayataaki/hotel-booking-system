@@ -1,5 +1,5 @@
 <!-- Sidebar -->
-  <aside class="sidebar bg-[#EADED0]" :class="{'open': sidebarOpen}">
+<aside class="sidebar bg-[#EADED0]" :class="{'open': sidebarOpen}">
     <div class="flex flex-col h-full">
       <div class="p-6">
         <div class="flex items-center justify-between mb-2">
@@ -28,7 +28,7 @@
             <span>Chambres</span>
           </a>
 
-          <a href="{{ route('admin.staff') }}" class="flex items-center space-x-3 px-3 py-3 rounded-lg bg-[#95714F] text-white">
+          <a href="{{ route('admin.staff') }}" class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
@@ -43,13 +43,21 @@
           </a>
 
           <!-- Lien vers Services supplémentaires -->
-            <a href="{{ route('admin.services') }}"
-            class="flex items-center px-6 py-2.5 {{ request()->routeIs('admin.services') ? 'bg-[#95714F] border-r-4 border-[#6d4927] text-white' : 'text-[#95714F] hover:bg-[#EADED0]' }} transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <a href="{{ route('admin.services') }}"
+            class="flex items-center space-x-3 px-3 py-3 rounded-lg {{ request()->routeIs('admin.services') ? 'bg-[#95714F] text-white' : 'transition-colors hover:bg-[#C7AF94] hover:text-white' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
-            Services supplémentaires
+            <span>Services supplémentaires</span>
             </a>
+
+          <!-- Mon compte -->
+          <a href="{{ route('admin.account') }}" class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span>Mon compte</span>
+          </a>
 
           <!-- <a href="admin_settings.html" class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

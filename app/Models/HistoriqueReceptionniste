@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class HistoriqueReceptionniste extends Model
+{
+    use HasFactory;
+
+    /**
+     * Nom de la table dans la base de données
+     */
+    protected $table = 'historiques_receptionniste';
+
+    protected $fillable = [
+        'chambre_id',
+        'reservation_receptionniste_id',
+    ];
+
+    /**
+     * Relation avec la chambre
+     */
+    public function chambre()
+    {
+        return $this->belongsTo(Chambre::class);
+    }
+
+    /**
+     * Relation avec la réservation du réceptionniste
+     */
+    public function reservationReceptionniste()
+    {
+        return $this->belongsTo(ReservationReceptionniste::class, 'reservation_receptionniste_id');
+    }
+}
