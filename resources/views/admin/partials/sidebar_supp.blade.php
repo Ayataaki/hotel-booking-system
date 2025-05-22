@@ -52,12 +52,12 @@
             </a>
 
           <!-- Mon compte -->
-          <a href="{{ route('admin.account') }}" class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
+          <!-- <a href="{{ route('admin.account') }}" class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             <span>Mon compte</span>
-          </a>
+          </a> -->
 
           <!-- <a href="admin_settings.html" class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

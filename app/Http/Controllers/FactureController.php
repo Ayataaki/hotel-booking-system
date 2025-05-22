@@ -18,7 +18,7 @@ use App\Http\Requests\UpdateFactureRequest;
 
 
 class FactureController extends Controller
-{    
+{
     public function showConfirm()
     {
         try {
@@ -27,28 +27,28 @@ class FactureController extends Controller
             $factureId = session('facture_id');
             $adultsCount = session('adultsCount', 0);
             $childrenCount = session('childrenCount', 0);
-            
+
             Log::info('Variables extraites de la session:', [
                 'reservationId' => $reservationId,
                 'factureId' => $factureId,
                 'adultsCount' => $adultsCount,
                 'childrenCount' => $childrenCount
             ]);
-            
+
             if (!$reservationId) {
                 return redirect()->route('home')
                     ->with('error', 'Données de réservation non trouvées');
             }
-            
+
             // Récupérer les données de la réservation
             $reservation = Reservation::findOrFail($reservationId);
-            
+
             // Récupérer la facture si disponible, sinon générer une nouvelle
             $facture = null;
             if ($factureId) {
                 $facture = Facture::find($factureId);
             }
-            
+
             // Si aucune facture n'existe, essayez d'en générer une nouvelle
             if ($facture === null) {
                 try {
@@ -64,30 +64,30 @@ class FactureController extends Controller
                     Log::error('Erreur lors de la génération de la facture: ' . $e->getMessage());
                 }
             }
-            
+
             // Récupérer les données associées
             $chambres = DB::table('historiques')
                 ->join('chambres', 'historiques.chambre_id', '=', 'chambres.id')
                 ->where('historiques.reservation_id', $reservationId)
                 ->select('chambres.*')
                 ->get();
-                
+
             $services = DB::table('posseders')
                 ->join('supplementaires', 'posseders.supplementaire_id', '=', 'supplementaires.id')
                 ->where('posseders.reservation_id', $reservationId)
                 ->select('supplementaires.*')
                 ->get();
-            
+
             // Afficher la vue avec toutes les données nécessaires
             return view("client.confirmationReservation", compact(
-                'reservation', 
-                'facture', 
-                'chambres', 
+                'reservation',
+                'facture',
+                'chambres',
                 'services',
                 'adultsCount',
                 'childrenCount'
             ));
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur dans showConfirm: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
@@ -107,32 +107,32 @@ class FactureController extends Controller
                 ->where('historiques.reservation_id', $reservation->id)
                 ->select('chambres.*')
                 ->get();
-            
+
             // S'assurer que nous avons des données
             if ($chambres->isEmpty()) {
                 Log::warning('Aucune chambre trouvée pour la réservation ' . $reservation->id);
             }
-            
+
             // Convertir la collection en tableau
             $chambresArray = $chambres->toArray();
-            
+
             // Récupérer les services
             $services = DB::table('posseders')
                 ->join('supplementaires', 'posseders.supplementaire_id', '=', 'supplementaires.id')
                 ->where('posseders.reservation_id', $reservation->id)
                 ->select('supplementaires.*')
                 ->get();
-            
+
             // Convertir la collection en tableau
             $servicesArray = $services->toArray();
-            
+
             // Créer un numéro de facture unique
             $numeroFacture = 'FAC-' . date('Ymd') . '-' . $reservation->id;
-            
+
             // Préparer les données adultes et enfants
             $adultsCount = $reservation->adultsCount ?? 0;
             $childrenCount = $reservation->childrenCount ?? 0;
-            
+
             // Log pour le débogage
             Log::info('Création de facture pour réservation ' . $reservation->id, [
                 'adultsCount' => $adultsCount,
@@ -140,12 +140,13 @@ class FactureController extends Controller
                 'chambres' => count($chambresArray),
                 'services' => count($servicesArray)
             ]);
-            
+
             // Créer la facture dans la base de données
             $facture = Facture::create([
                 'reservation_id' => $reservation->id,
                 'numero_facture' => $numeroFacture,
-                'montant_total' => $reservation->totalPayer,
+                // 'montant_total' => $reservation->totalPayer,
+                'montant_total' => $reservation->soldePayer,
                 'date_emission' => now(),
                 'details' => json_encode([
                     'dates' => [$reservation->dateDeb, $reservation->dateFin],
@@ -155,15 +156,15 @@ class FactureController extends Controller
                     'services' => $servicesArray
                 ]),
             ]);
-            
+
             // Vérifions que la facture a bien été créée
             if (!$facture || !$facture->exists) {
                 Log::error('Échec de création de la facture pour la réservation ' . $reservation->id);
                 throw new \Exception('Échec de création de la facture');
             }
-            
+
             Log::info('Facture créée avec succès', ['facture_id' => $facture->id]);
-            
+
             return [
                 'facture' => $facture,
                 'pdf_path' => null, // À compléter selon votre logique
@@ -183,10 +184,10 @@ class FactureController extends Controller
         try {
             // 1. Récupérer la facture avec toutes les relations nécessaires
             $facture = Facture::with('reservation.client')->findOrFail($id);
-            
+
             // 2. Décoder les détails JSON
             $details = json_decode($facture->details, true);
-            
+
             // 3. Prépare les données pour la facture
             $data = [
                 'facture' => $facture,
@@ -199,32 +200,32 @@ class FactureController extends Controller
                 'adultsCount' => $details['adultsCount'] ?? 0,
                 'childrenCount' => $details['childrenCount'] ?? 0,
             ];
-            
+
             // 4. Générer le HTML de la facture
             $html = $this->generateFactureHTML($data);
-            
+
             // 5. Créer le PDF
             $pdf = Pdf::loadHTML($html);
             $pdf->setPaper('a4');
-            
+
             // 6. Définir le chemin de sauvegarde et créer le dossier s'il n'existe pas
             $directory = storage_path("app/public/factures");
-            
+
             // Créer le dossier factures s'il n'existe pas
             if (!file_exists($directory)) {
                 mkdir($directory, 0777, true); // Créer récursivement le chemin complet
             }
-            
+
             $path = $directory . "/facture-{$facture->numero_facture}.pdf";
-            
+
             // 7. Sauvegarder le PDF
             $pdf->save($path);
-            
+
             // 8. Télécharger le PDF
             if (file_exists($path)) {
                 return response()->download(
-                    $path, 
-                    "Facture_{$facture->numero_facture}.pdf", 
+                    $path,
+                    "Facture_{$facture->numero_facture}.pdf",
                     [
                         'Content-Type' => 'application/pdf',
                         'Content-Disposition' => "attachment; filename=\"Facture_{$facture->numero_facture}.pdf\"",
@@ -245,7 +246,7 @@ class FactureController extends Controller
             ], 500);
         }
     }
-    
+
 
         private function generateFactureHTML($data)
     {
@@ -255,37 +256,37 @@ class FactureController extends Controller
         $client = $data['client'];
         $chambres = $data['chambres'];
         $services = $data['services'];
-        
+
         // Calculer les dates et la durée du séjour
         $dateDebut = Carbon::parse($reservation->dateDeb);
         $dateFin = Carbon::parse($reservation->dateFin);
         $nombreJours = $dateDebut->diffInDays($dateFin);
-        
+
         // Formater les dates
         $dateFacture = date('d/m/Y', strtotime($facture->date_emission));
         $dateDebFormatted = date('d/m/Y', strtotime($reservation->dateDeb));
         $dateFinFormatted = date('d/m/Y', strtotime($reservation->dateFin));
-        
+
         // Calculer les sous-totaux
         $totalChambres = 0;
         foreach ($chambres as $chambre) {
             $totalChambres += $chambre['prixNuit'] * $nombreJours;
         }
-        
+
         $totalServices = 0;
         foreach ($services as $service) {
             $totalServices += $service['tarif'];
         }
-        
+
         // Utiliser directement le montant total de la facture comme TTC
         $montantTTC = $facture->montant_total;
-        
+
         // TVA et total
         $tauxTVA = 20; // À ajuster selon votre pays
         $montantHT = $montantTTC / (1 + ($tauxTVA / 100));
         $montantTVA = $montantTTC - $montantHT;
-        
-   
+
+
 
         $html = <<<HTML
         <!DOCTYPE html>
@@ -536,7 +537,7 @@ class FactureController extends Controller
                     line-height: 1.2; /* Réduire l'interligne */
                 }
 
-                .small-table th, 
+                .small-table th,
                 .small-table td {
                     padding: 8px 10px; /* Réduire le rembourrage */
                 }
@@ -554,7 +555,7 @@ class FactureController extends Controller
                         <p>Numéro: <strong>{$facture->numero_facture}</strong> | Date: <strong>{$dateFacture}</strong></p>
                     </div>
                 </div>
-                
+
                 <div class="info-blocks">
                     <div class="info-block">
                         <h4>HÔTEL</h4>
@@ -566,7 +567,7 @@ class FactureController extends Controller
                             Tél: +212 5 00 40 67 89<br>
                         </p>
                     </div>
-                    
+
                     <div class="info-block">
                         <h4>CLIENT</h4>
                         <p>
@@ -577,14 +578,14 @@ class FactureController extends Controller
                         </p>
                     </div>
                 </div>
-                
+
                 <div class="reservation-details">
                     <h3 class="section-title">Détails de la réservation</h3>
                     <p><strong>Numéro de réservation:</strong> #{$reservation->id}</p>
                     <p><strong>Période de séjour:</strong> Du {$dateDebFormatted} au {$dateFinFormatted} ({$nombreJours} nuits)</p>
                 </div>
-        
-                <div class="section-wrapper">    
+
+                <div class="section-wrapper">
                 <h3 class="section-title">Chambres</h3>
                 <table>
                     <thead>
@@ -598,7 +599,7 @@ class FactureController extends Controller
                     </thead>
                     <tbody>
         HTML;
-        
+
         // Ajouter les chambres
         foreach ($chambres as $chambre) {
             $prixTotal = $chambre['prixNuit'] * $nombreJours;
@@ -612,13 +613,13 @@ class FactureController extends Controller
                         </tr>
         HTML;
         }
-        
+
         $html .= <<<HTML
                     </tbody>
                 </table>
                 </div>
         HTML;
-        
+
         // Ajouter les services si présents
         if (!empty($services)) {
             $html .= <<<HTML
@@ -632,7 +633,7 @@ class FactureController extends Controller
                     </thead>
                     <tbody>
         HTML;
-        
+
             foreach ($services as $service) {
                 $html .= <<<HTML
                         <tr>
@@ -641,16 +642,16 @@ class FactureController extends Controller
                         </tr>
         HTML;
             }
-        
+
             $html .= <<<HTML
                     </tbody>
                 </table>
         HTML;
         }
-        
+
         $html .= <<<HTML
                 <div class="divider"></div>
-        
+
                 <div class="totals">
                     <table>
                         <tr>
@@ -667,17 +668,17 @@ class FactureController extends Controller
                         </tr>
                     </table>
                 </div>
-                
+
                 <div class="payment-info">
                     <h4>Informations de paiement</h4>
                     <p>Le montant total a été réglé le {$dateFacture}.</p>
                     <p>Nous vous remercions pour votre paiement.</p>
                 </div>
-                
+
                 <div class="thankyou">
                     Merci d'avoir choisi La Mi Casa pour votre séjour!
                 </div>
-                
+
                 <div class="footer">
                     <p>LA MI CASA - Avenue Abderrahim Bouabid, Agdal - 75000 Rabat, Maroc</p>
                     <p>SIRET: 123 456 789 00012 - TVA: MA 12 345 678 90</p>

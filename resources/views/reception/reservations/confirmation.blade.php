@@ -51,7 +51,7 @@
                     <div>
                         <p class="text-sm text-[#95714F] mb-1">Montant total:</p>
                         <!-- Affichage corrigé du montant total -->
-                        <p class="font-semibold text-[#6d4927]">{{ number_format(abs($reservation->totalPayer), 2, ',', ' ') }}€</p>
+                        <p class="font-semibold text-[#6d4927]">{{ number_format(abs($reservation->soldePayer), 2, ',', ' ') }}€</p>
                     </div>
                 </div>
             </div>

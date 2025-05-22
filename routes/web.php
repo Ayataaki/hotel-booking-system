@@ -216,6 +216,11 @@ Route::middleware(['auth', 'role:recep'])->group(function () {
     Route::get('/reception/reservations', [ReservationControllerReceptionniste::class, 'index'])->name('reception.reservations');
     Route::put('/reception/reservations/update', [ReservationControllerReceptionniste::class, 'update'])->name('reception.reservations.update');
     Route::delete('/reception/reservations/destroy', [ReservationControllerReceptionniste::class, 'destroy'])->name('reception.reservations.destroy');
+    //Pour modifier le date de départ par exemple :
+    // Route::get('/reception/reservations/{id}/edit', [ReservationControllerReceptionniste::class, 'edit'])->name('reception.reservations.edit');
+    Route::get('/reception/reservations/{id}/edit', [App\Http\Controllers\ReceptionController::class, 'editReservation'])->name('reception.reservations.edit');
+
+
 
     // Route::post('/reception/reservations', [ReceptionController::class, 'storeReservation'])->name('reception.reservations.store');
 

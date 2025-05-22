@@ -77,7 +77,8 @@ public function store(Request $request)
             'numTel' => 'required|string|max:20',
             'CIN' => 'required|string|max:20',
             'adresse' => 'nullable|string',
-            'statut' => 'required|in:active,inactive',
+            // 'statut' => 'required|in:active,inactive',
+            // 'statut' => 'required|in:active',
         ]);
 
         // 1. Créer l'utilisateur dans la table 'users'
@@ -96,7 +97,8 @@ public function store(Request $request)
             'numTel' => $request->numTel,
             'CIN' => $request->CIN,
             'adresse' => $request->adresse ?? '',
-            'statut' => $request->statut,
+            // 'statut' => $request->statut,
+            'statut' => "active",
             'user_id' => $user->id, // Lier au compte utilisateur créé
             'created_at' => $request->created_at ?? now(),
         ]);
@@ -269,7 +271,7 @@ public function store(Request $request)
             'numTel' => 'required|string|max:20',
             'CIN' => 'required|string|max:20',
             'adresse' => 'nullable|string',
-            'statut' => 'required|in:active,inactive',
+            // 'statut' => 'required|in:active,inactive',
             'password' => 'nullable|min:8',
             'password_confirmation' => 'nullable|same:password',
         ]);
@@ -296,7 +298,7 @@ public function store(Request $request)
             'numTel' => $request->numTel,
             'CIN' => $request->CIN,
             'adresse' => $request->adresse ?? '',
-            'statut' => $request->statut,
+            // 'statut' => $request->statut,
         ]);
 
         // Mettre à jour l'utilisateur associé

@@ -135,7 +135,7 @@
                   <td class="px-4 py-3 whitespace-nowrap">{{ optional(optional($reservation->historique)->chambre)->NumCh ?? 'N/A' }}</td>
                   <td class="px-4 py-3 whitespace-nowrap">{{ $reservation->dateDeb->format('d/m/Y') }}</td>
                   <td class="px-4 py-3 whitespace-nowrap">{{ $reservation->dateFin->format('d/m/Y') }}</td>
-                  <td class="px-4 py-3 whitespace-nowrap">{{ number_format($reservation->soldePayer, 2, ',', ' ') }}€</td>
+                  <td class="px-4 py-3 whitespace-nowrap">{{ number_format($reservation->totalPayer, 2, ',', ' ') }}€</td>
                     <td class="px-4 py-3 whitespace-nowrap">
                         <div class="flex space-x-2">
                             <!-- Bouton Voir (comme vous l'avez déjà) -->
@@ -155,18 +155,23 @@
                             </button> -->
 
                             <!-- Bouton Modifier -->
-                            <button @click="editReservationModal = true; currentReservation = {
+                            <!-- <button @click="editReservationModal = true; currentReservation = {
                                         id: '{{ $reservation->id }}',
                                         client: '{{ $reservation->client->prenom }} {{ $reservation->client->nom }}',
                                         chambre: '{{ optional(optional($reservation->historique)->chambre)->NumCh ?? 'Non défini' }}',
-                                        dateDeb: '{{ $reservation->dateDeb->format('Y-m-d') }}',
+                                        dateDeb: '{{ $reservation->dateDeb->format('d/m/Y') }}',
                                         dateFin: '{{ $reservation->dateFin->format('Y-m-d') }}'
                                     }"
+                                    class="text-[#95714F] hover:text-[#6d4927]" title="Modifier"> -->
+                                    <!-- <a href="{{ route('reception.reservations.edit', $reservation->id) }}"
+   class="text-[#95714F] hover:text-[#6d4927]" title="Modifier"></a> -->
+                                <a href="{{ route('reception.reservations.create', ['reservation' => $reservation->id]) }}"
                                     class="text-[#95714F] hover:text-[#6d4927]" title="Modifier">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
-                            </button>
+                                </a>
+                            <!-- </button> -->
 
                             <!-- Bouton Supprimer -->
                             <button @click="deleteReservationModal = true; currentReservation = {
@@ -207,7 +212,8 @@
                 @if ($reservations->currentPage() <= 1)
                     <span class="px-3 py-1 border border-gray-300 rounded-md text-gray-400 bg-gray-100">Précédent</span>
                 @else
-                    <a href="{{ $reservations->previousPageUrl() }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Précédent</a>
+                    <!-- <a href="{{ $reservations->previousPageUrl() }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Précédent</a> -->
+                    <a href="{{ $reservations->appends(request()->query())->previousPageUrl() }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Précédent</a>
                 @endif
 
                 {{-- Numéros de page --}}
@@ -215,7 +221,8 @@
                     @if($i == $reservations->currentPage())
                         <span class="px-3 py-1 border border-[#95714F] bg-[#95714F] text-white rounded-md">{{ $i }}</span>
                     @else
-                        <a href="{{ $reservations->url($i) }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">{{ $i }}</a>
+                        <!-- <a href="{{ $reservations->url($i) }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">{{ $i }}</a> -->
+                        <a href="{{ $reservations->appends(request()->query())->url($i) }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">{{ $i }}</a>
                     @endif
                 @endfor
 
@@ -223,7 +230,8 @@
                 @if ($reservations->currentPage() >= $reservations->lastPage())
                     <span class="px-3 py-1 border border-gray-300 rounded-md text-gray-400 bg-gray-100">Suivant</span>
                 @else
-                    <a href="{{ $reservations->nextPageUrl() }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Suivant</a>
+                    <!-- <a href="{{ $reservations->nextPageUrl() }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Suivant</a> -->
+                    <a href="{{ $reservations->appends(request()->query())->nextPageUrl() }}" class="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Suivant</a>
                 @endif
             </div>
         </div>

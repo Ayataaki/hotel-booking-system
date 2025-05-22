@@ -43,8 +43,10 @@
           </a>
 
           <!-- Lien vers Services supplémentaires -->
+            <!-- <a href="{{ route('admin.services') }}"
+            class="flex items-center px-6 py-2.5 {{ request()->routeIs('admin.services') ? 'bg-[#95714F] border-r-4 border-[#6d4927] text-white' : 'text-[#95714F] hover:bg-[#EADED0]' }} transition-colors"> -->
             <a href="{{ route('admin.services') }}"
-            class="flex items-center px-6 py-2.5 {{ request()->routeIs('admin.services') ? 'bg-[#95714F] border-r-4 border-[#6d4927] text-white' : 'text-[#95714F] hover:bg-[#EADED0]' }} transition-colors">
+            class="flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors hover:bg-[#C7AF94] hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>

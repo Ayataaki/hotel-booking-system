@@ -86,6 +86,21 @@ class FactureControllerReceptionniste extends Controller
     //     ));
     // }
 
+
+
+    // public function genererFactureMontant($reservation, $montant)
+    // {
+    //     $facture = Facture::create([
+    //         'reservation_id' => $reservation->id,
+    //         'montant' => $montant,
+    //         'dateFacture' => now()
+    //     ]);
+
+    //     return ['facture' => $facture];
+    // }
+
+
+
     public function generateFactureHTML($data)
     {
         // Extraire les variables
@@ -117,7 +132,13 @@ class FactureControllerReceptionniste extends Controller
         }
 
         // Utiliser directement le montant total de la facture comme TTC
-        $montantTTC = $facture->montant_total;
+        // $montantTTC = $facture->montant_total;
+        // $montantTTC = $data['totalPayer'];
+        $montantTTC = $reservation->soldePayer;
+
+        // $montantTTC = $facture->montant_soldePayer;
+        // $montantTTC = $reservation->soldePayer;
+        // $montantTTC = $data['totalPayer'];=
 
         // TVA et total
         $tauxTVA = 20; // À ajuster selon votre pays
@@ -238,6 +259,7 @@ class FactureControllerReceptionniste extends Controller
                     <tbody>
         HTML;
 
+        // $prixTotal = $reservation->soldePayer;
         // Ajouter les chambres
         foreach ($chambres as $chambre) {
             $prixTotal = $chambre->prixNuit * $nombreJours;
@@ -294,7 +316,7 @@ class FactureControllerReceptionniste extends Controller
                         </tr>
                         <tr>
                             <th>Total TTC:</th>
-                            <td>{$montantTTC} €</td>
+                            <td>{{ $reservation->soldePayer }} €</td>
                         </tr>
                     </table>
                 </div>
@@ -332,8 +354,10 @@ class FactureControllerReceptionniste extends Controller
             // 3. Prépare les données pour la facture
             $data = [
                 'facture' => $facture,
-                'totalPayer' => $facture->montant_total,
+
+
                 'reservation' => $facture->reservation,
+                'totalPayer' => $facture->reservation->soldePayer,
                 'client' => $facture->reservation->client,
                 'chambres' => DB::table('historiques')
                     ->join('chambres', 'historiques.chambre_id', '=', 'chambres.id')

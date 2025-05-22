@@ -51,9 +51,15 @@
 
     <div class="p-6 md:p-8 pt-20 md:pt-8">
       <!-- <form method="POST" action="{{ route('reception.reservations.store') }}" x-data="reservationForm()" class="space-y-8"> -->
-      <form method="POST" action="{{ route('reception.reservations.store') }}" x-data="reservationForm()" x-init="init()" class="space-y-8">
+      <form method="POST"  action="{{ route('reception.reservations.store') }}" x-data="reservationForm()" x-init="init()" class="space-y-8">
       <!-- <form method="POST" action="{{ route('reception.reservations.store') }}" x-data="reservationForm()" x-init="init()" @submit="submitForm" class="space-y-8"> -->
         @csrf
+
+
+        <!-- <input type="hidden" name="id" value="{{ request('reservation') }}"> -->
+
+        <!-- <input type="hidden" name="soldePayer" :value="reservationId ? montantAAjouter : prixTotal"> -->
+
 
         <!-- Étape 1: Chambres et dates -->
         <div class="bg-white rounded-xl shadow-md p-6">
@@ -67,6 +73,7 @@
                 id="date-debut"
                 name="dateDeb"
                 x-model="dateDeb"
+                readonly
                 @change="calculerDuree(); calculerPrixTotal()"
                 :min="new Date().toISOString().split('T')[0]"
                 class="w-full p-2 border border-[#C7AF94] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]"
@@ -101,7 +108,7 @@
               x-model="chambreId"
               @change="getChambreDetails(); calculerPrixTotal()"
               class="w-full p-2 border border-[#C7AF94] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]"
-              required
+
             >
               <option value="">Sélectionnez une chambre</option>
               @foreach($chambresDisponibles as $chambre)
@@ -390,6 +397,18 @@
               <p class="text-sm font-medium text-[#6d4927]">
                 Prix total: <span x-text="prixTotal + '€'"></span>
               </p>
+              <!-- <p class="text-sm font-bold text-red-600" x-show="reservationId">
+                Prix supplémentaire: <span x-text="(duree - dureeOriginale) * chambreDetails.prixNuit + '€'"></span>
+              </p> -->
+              <!-- <p class="text-sm font-medium text-red-700" x-show="montantAAjouter > 0">
+                Montant à payer maintenant (jours ajoutés) : <span x-text="montantAAjouter + '€'"></span>
+              </p> -->
+              <p class="text-sm font-medium text-red-700" x-show="montantAAjouter > 0">
+                Montant à payer maintenant (jours ajoutés) : <span x-text="montantAAjouter + '€'"></span>
+              </p>
+
+
+
 
 
               <!-- <div class="mt-4">
@@ -443,6 +462,22 @@
             </button>
           </div>
         </div>
+
+        <input type="hidden" name="reservation_id" value="{{ request('reservation') }}">
+        <!-- <input type="hidden" name="soldePayer" :value="montantAAjouter > 0 ? montantAAjouter : prixTotal"> -->
+         <!-- <input type="hidden" name="soldePayer" :value="montantAAjouter !== undefined ? montantAAjouter : prixTotal"> -->
+          <!-- <input type="hidden" name="soldePayer" :value="reservationId ? montantAAjouter : prixTotal"> -->
+           <!-- <input type="hidden" name="soldePayer" value=""> -->
+
+
+            <!-- <input type="hidden" name="soldePayer" x-ref="soldePayer" value="reservationId ? montantAAjouter : prixTotal"> -->
+            <input type="hidden" name="soldePayer" x-ref="soldePayer">
+
+
+
+
+
+
       </form>
     </div>
   </div>
@@ -465,15 +500,77 @@
         searchQuery: '',
         searchResults: [],
         selectedClient: {},
+        reservationId: "{{ request('reservation') ?? '' }}", // C’est ici qu’on récupère l'ID via l’URL
 
         init() {
-          if (this.chambreId) {
+          //if (this.chambreId) {
+            //this.getChambreDetails();
+          //}
+          //if (this.dateDeb && this.dateFin) {
+            //this.calculerDuree();
+          //}
+
+
+       @if(isset($reservationData) && isset($clientData))
+            this.clientType = 'existant';
+            this.selectedClient = {
+                id: "{{ $clientData->id }}",
+                nom: "{{ $clientData->nom }}",
+                prenom: "{{ $clientData->prenom }}",
+                telephone: "{{ $clientData->telephone }}",
+                pays: "{{ $clientData->pays }}",
+                region: "{{ $clientData->region }}"
+            };
+            this.searchQuery = this.selectedClient.nom + ' ' + this.selectedClient.prenom;
+            this.chambreId = "{{ optional(optional($reservationData->historique)->chambre)->id }}";
+            this.dateDeb = "{{ $reservationData->dateDeb->format('Y-m-d') }}";
+            this.dateFin = "{{ $reservationData->dateFin->format('Y-m-d') }}";
+            this.oldDateFin = "{{ $reservationData->dateFin->format('Y-m-d') }}";
+            this.oldTotal = {{ $reservationData->totalPayer ?? 0 }};
             this.getChambreDetails();
-          }
-          if (this.dateDeb && this.dateFin) {
             this.calculerDuree();
-          }
+            this.prixOriginal = {{ $reservationData->totalPayer ?? 0 }};
+            this.montantAAjouter = this.prixTotal - this.prixOriginal;
+        @else
+            // Cas création => Appelle les fonctions manuellement si données présentes
+            if (this.dateDeb && this.dateFin) {
+            this.calculerDuree();
+            }
+            if (this.chambreId) {
+            this.getChambreDetails();
+            }
+        @endif
+
+
+
+
+
         },
+        // avantSoumission() {
+        //     const champSolde = document.querySelector('input[name=soldePayer]');
+        //     champSolde.value = this.reservationId ? this.montantAAjouter : this.prixTotal;
+
+        //     // Ensuite, on soumet le formulaire manuellement :
+        //     $el.submit(); // $el est l'élément du formulaire lui-même
+        // },
+
+        // avantSoumission() {
+        //     const champ = document.querySelector('input[name="soldePayer"]');
+        //     champ.value = this.reservationId ? this.montantAAjouter : this.prixTotal;
+
+        //     // Récupère et insère le token CSRF manuellement s’il manque
+        //     const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        //     const csrfInput = document.createElement('input');
+        //     csrfInput.setAttribute('type', 'hidden');
+        //     csrfInput.setAttribute('name', '_token');
+        //     csrfInput.setAttribute('value', csrf);
+        //     document.querySelector('form').appendChild(csrfInput);
+
+        //     // Envoie manuellement
+        //     document.querySelector('form').submit();
+        // },
+
+
         // submitForm(event) {
         //     event.preventDefault();
 
@@ -543,10 +640,31 @@
             });
         },
 
-        calculerPrixTotal() {
-          if (!this.duree || !this.chambreDetails.prixNuit) return;
+        // calculerPrixTotal() {
+        //   if (!this.duree || !this.chambreDetails.prixNuit) return;
 
-          this.prixTotal = this.duree * this.chambreDetails.prixNuit;
+        //   this.prixTotal = this.duree * this.chambreDetails.prixNuit;
+        // },
+        calculerPrixTotal() {
+
+            if (!this.duree || !this.chambreDetails.prixNuit) return;
+
+            this.prixTotal = this.duree * this.chambreDetails.prixNuit;
+
+            // 🔁 Comparer avec l'ancienne date de fin
+            const nouvelleFin = new Date(this.dateFin);
+            const ancienneFin = new Date(this.oldDateFin);
+
+            if (nouvelleFin > ancienneFin) {
+                const joursAjoutes = Math.ceil((nouvelleFin - ancienneFin) / (1000 * 60 * 60 * 24));
+                this.montantAAjouter = joursAjoutes * this.chambreDetails.prixNuit;
+            } else {
+                this.montantAAjouter = 0;
+            }
+
+            // 🔥 AJOUT ESSENTIEL 🔥
+            document.querySelector('input[name="soldePayer"]').value = this.reservationId ? this.montantAAjouter : this.prixTotal;
+
         },
 
         searchClients() {

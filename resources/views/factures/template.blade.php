@@ -66,7 +66,7 @@
         <img src="{{ public_path('images/logo.png') }}" alt="LA MI CASA" class="logo">
         <h1>Facture</h1>
     </div>
-    
+
     <div class="facture-info">
         <table>
             <tr>
@@ -83,7 +83,7 @@
             </tr>
         </table>
     </div>
-    
+
     <div class="client-info">
         <h3>Coordonnées du client</h3>
         <p>
@@ -92,12 +92,12 @@
             Email: {{ $client->user->email }}
         </p>
     </div>
-    
+
     <div class="details">
         <h3>Détails de la réservation</h3>
         <p>Période de séjour: {{ \Carbon\Carbon::parse($reservation->dateDeb)->format('d/m/Y') }} au {{ \Carbon\Carbon::parse($reservation->dateFin)->format('d/m/Y') }}</p>
         <p>Nombre de nuits: {{ \Carbon\Carbon::parse($reservation->dateDeb)->diffInDays(\Carbon\Carbon::parse($reservation->dateFin)) }}</p>
-        
+
         <h4>Chambres</h4>
         <table>
             <thead>
@@ -119,7 +119,7 @@
                 @endforeach
             </tbody>
         </table>
-        
+
         @if(count($reservation->services) > 0)
         <h4>Services additionnels</h4>
         <table>
@@ -140,11 +140,12 @@
         </table>
         @endif
     </div>
-    
+
     <div class="total">
-        <p>Montant total: <span class="amount">{{ number_format($facture->montant_total, 2) }} €</span></p>
+        <!-- <p>Montant total: <span class="amount">{{ number_format($facture->montant_total, 2) }} €</span></p> -->
+        <p>Montant total: <span class="amount">{{ number_format($facture->montant_soldePayer, 2) }} €</span></p>
     </div>
-    
+
     <div class="footer">
         <p>LA MI CASA - Hôtel & Spa<br>
         123 Avenue des Palmiers, 40000 Marrakech, Maroc<br>

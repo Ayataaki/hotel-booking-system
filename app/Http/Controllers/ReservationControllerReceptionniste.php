@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reservation;
+use App\Models\Chambre;
+use App\Models\Paiement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +21,7 @@ class ReservationControllerReceptionniste extends Controller
     // }
 
 
-    
+
     public function index(Request $request)
     {
         $query = Reservation::with(['client', 'historique.chambre']);
@@ -58,6 +60,16 @@ class ReservationControllerReceptionniste extends Controller
         return view('reception.reservations.index', compact('reservations', 'page', 'total', 'totalPages'));
     }
 
+
+
+
+
+
+    // public function edit($id)
+    // {
+    //     $reservation = Reservation::with(['client', 'historique.chambre'])->findOrFail($id);
+    //     return view('reception.reservations.create', compact('reservation'));
+    // }
 
 
     // public function show($id)
@@ -229,6 +241,7 @@ class ReservationControllerReceptionniste extends Controller
 
         $reservation = Reservation::findOrFail($request->id);
 
+
         try {
             DB::beginTransaction();
 
@@ -263,7 +276,14 @@ class ReservationControllerReceptionniste extends Controller
             $nouveauTotal = $reservation->totalPayer + $montantSupplementaire;
 
             // Calculer nouveau soldePayer
-            $nouveauSoldePayer = $reservation->soldePayer + $montantSupplementaire;
+            // $nouveauSoldePayer = $reservation->soldePayer + $montantSupplementaire;
+            // $soldeRecu = $request->input('soldePayer');
+            // $soldeRecu = floatval($request->input('soldePayer'));
+            // $nouveauSoldePayer = $soldeRecu;
+            $montantAAjouter = $differenceNuits * $prixNuit;
+            $nouveauSoldePayer = $reservation->soldePayer + $montantAAjouter;
+
+
 
             // Mettre à jour la table reservations
             $reservation->update([
@@ -271,7 +291,13 @@ class ReservationControllerReceptionniste extends Controller
                 'totalPayer' => $nouveauTotal,
                 'soldePayer' => $nouveauSoldePayer
             ]);
-
+            // à ajouter
+            $paiement = Paiement::create([
+                'montant'=>$nouveauSoldePayer,
+                'mode'=>'carte',
+                'reservation_id'=>$reservation->id,
+                'datePa'=>now(),
+            ]);
             DB::commit();
 
             $message = 'Date de fin modifiée avec succès.';
@@ -349,6 +375,8 @@ class ReservationControllerReceptionniste extends Controller
             'id' => 'required|exists:reservations,id',
         ]);
 
+
+
         $reservation = Reservation::findOrFail($request->id);
 
         try {
@@ -374,8 +402,10 @@ class ReservationControllerReceptionniste extends Controller
             // En cas d'erreur, annuler la transaction
             DB::rollBack();
 
-            return redirect()->route('reception.reservations')
-                ->with('error', 'Erreur lors de la suppression de la réservation : ' . $e->getMessage());
+            // return redirect()->route('reception.reservations')
+            //     ->with('error', 'Erreur lors de la suppression de la réservation : ' . $e->getMessage());
+            return redirect()->back()->with('success', 'Réservation supprimée avec succès');
+
         }
     }
 

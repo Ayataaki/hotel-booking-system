@@ -1,12 +1,12 @@
 <!-- Footer -->
 <footer class="bg-[#F3ECE3] text-gray-700 py-12 px-4 relative">
-  <div class="max-w-7xl mx-auto grid md:grid-cols-5 gap-8 pt-8">
-    <div>
+  <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-8 pt-8">
+    <div class="flex-wrap justify-center items-center text-center">
       <h3 class="text-xl font-bold font-['Playfair_Display'] text-[#6d4927] mb-4">LA MI CASA</h3>
       <p class="text-sm">Un havre de paix au cœur de la ville. Notre hôtel vous offre confort, élégance et services de qualité pour un séjour inoubliable.</p>
     </div>
 
-    <div>
+    <div class="flex-wrap justify-center items-center text-center">
       <h4 class="font-medium text-[#6d4927] mb-4">Navigation</h4>
       <ul class="space-y-2 text-sm">
         <li><a href="{{ route('home') }}" class="hover:text-[#95714F] transition-colors duration-300 inline-block transform hover:translate-x-1 no-underline">Accueil</a></li>
@@ -15,7 +15,7 @@
       </ul>
     </div>
 
-    <div>
+    <div class="flex-wrap justify-center items-center text-center">
       <h4 class="font-medium text-[#6d4927] mb-4">Contact</h4>
       <ul class="space-y-2 text-sm">
         <li class="flex items-start">
@@ -40,9 +40,10 @@
       </ul>
     </div>
 
-    <div>
+    <div class="flex-wrap justify-center items-center text-center">
       <h4 class="font-medium text-[#6d4927] mb-4">Suivez-nous</h4>
-      <div class="flex space-x-4">
+      <!-- <div class="flex space-x-4"> -->
+      <div class="flex justify-center items-center space-x-4">
         <a href="#" class="text-[#95714F] hover:text-[#6d4927] transition-colors duration-300 transform hover:scale-110 inline-block">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
@@ -60,9 +61,9 @@
         </a>
       </div>
     </div>
-    <div>
+    <!-- <div>
         <a href="/login" class="text-sm text-gray-500 hover:underline">Espace admin</a>
-    </div>
+    </div> -->
   </div>
 
   <div class="mt-12 pt-8 border-t border-gray-300 text-center text-sm text-gray-600">

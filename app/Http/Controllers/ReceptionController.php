@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use Illuminate\Routing\Controller;
 use App\Models\Client;
 use App\Models\Historique;
+use App\Models\Paiement;
 use Carbon\Carbon;
 // use App\Http\Controllers\Facture;
 use App\Models\Facture;
@@ -215,11 +216,30 @@ class ReceptionController extends Controller
     }
 
 
+    // public function createReservation(Request $request)
+    // {
+    //     $chambre = Chambre::findOrFail($request->chambre);
+    //     $chambresDisponibles = Chambre::where('status', 1)->get(); // ou juste Chambre::all();
+    //     return view('reception.reservations.create', compact('chambre', 'chambresDisponibles'));
+    // }
+
     public function createReservation(Request $request)
     {
-        $chambre = Chambre::findOrFail($request->chambre);
-        $chambresDisponibles = Chambre::where('status', 1)->get(); // ou juste Chambre::all();
-        return view('reception.reservations.create', compact('chambre', 'chambresDisponibles'));
+        $chambresDisponibles = Chambre::all();
+
+        $reservationData = null;
+        $clientData = null;
+
+        if ($request->has('reservation')) {
+            $reservation = Reservation::with('client', 'historique.chambre')->find($request->reservation);
+
+            if ($reservation) {
+                $reservationData = $reservation;
+                $clientData = $reservation->client;
+            }
+        }
+
+        return view('reception.reservations.create', compact('chambresDisponibles', 'reservationData', 'clientData'));
     }
 
     // Pour rechercher le client existants dans la page /reception/reservations/create.
@@ -749,14 +769,73 @@ class ReceptionController extends Controller
                 'prixTotal' => $prixTotal
             ]);
 
+
+
+
+            // Si l'ID de réservation est présent, on fait un update
+            if ($request->filled('reservation_id')) {
+                $reservation = Reservation::find($request->reservation_id);
+                if ($reservation) {
+                    $reservation->dateFin = $request->dateFin;
+                    $reservation->totalPayer = $prixTotal;
+                    // $reservation->soldePayer = $prixTotal;
+                    // $reservation->soldePayer += floatval($request->input('soldePayer'));
+                    $reservation->soldePayer = floatval($request->input('soldePayer'));
+
+                    $reservation->save();
+
+                    // Mettre à jour l'historique si nécessaire
+                    $historique = $reservation->historique;
+                    if ($historique) {
+                        $historique->chambre_id = $chambre->id;
+                        $historique->save();
+                    }
+
+                    Log::info('Réservation mise à jour', ['id' => $reservation->id]);
+
+                    // Mettre à jour la facture
+                    $factureController = new \App\Http\Controllers\FactureController();
+                    $facture = $reservation->facture ?? null;
+
+
+                    if ($facture) {
+                        $facture->montant_soldePayer = $reservation->soldePayer;
+                        $factureController->mettreAJourFacture($reservation, $facture);
+                    } else {
+                        $facture = $factureController->genererFactureApresReservation($reservation)['facture'];
+                    }
+
+                    return redirect()->route('reception.confirmation', [
+                        'reservation_id' => $reservation->id,
+                        'facture_id' => $facture->id
+                    ])->with('success', 'Réservation mise à jour avec succès !');
+                }
+            }
+
+
+
+
+
+
+
+
+
             // 3. Création de la réservation
             $reservation = Reservation::create([
                 'client_id' => $clientId,
                 'dateDeb' => $request->dateDeb,
                 'dateFin' => $request->dateFin,
                 'totalPayer' => $prixTotal,
-                'soldePayer' => $prixTotal,
+                // 'soldePayer' => $prixTotal,
+                'soldePayer' => floatval($request->input('soldePayer')),
                 'receptionniste_id' => Auth::user()->id
+            ]);
+
+            $paiement = Paiement::create([
+                'montant'=>$reservation->soldePayer,
+                'mode'=>"carte",
+                'reservation_id'=>$reservation->id,
+                'datePa'=>now(),
             ]);
 
             Log::info('Réservation créée', ['id' => $reservation->id]);
