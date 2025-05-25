@@ -27,11 +27,14 @@ class ChambreControllerAdmin extends Controller
         }
 
         $chambres = $query->get();
+        $categories = Categorie::all();
+
 
         return view('admin.rooms', [
             'chambres' => $chambres,
             'selectedType' => $request->input('type'),
-            'selectedStatus' => $request->input('status')
+            'selectedStatus' => $request->input('status'),
+            'categories' => $categories
         ]);
     }
 

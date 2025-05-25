@@ -214,8 +214,10 @@ class ReceptionController extends Controller
         }
 
         $chambresDisponibles = $query->get();
+        $categories = \App\Models\Categorie::all();
 
-        return view('reception.chambres.disponibles', compact('chambresDisponibles'));
+
+        return view('reception.chambres.disponibles', compact('chambresDisponibles', 'categories'));
     }
 
 

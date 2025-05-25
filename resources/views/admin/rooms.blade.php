@@ -250,11 +250,17 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                 <label for="room-type" class="block text-sm font-medium text-[#6d4927] mb-1">Type de chambre</label>
-                <select id="room-type" class="w-full p-2 border border-[#C7AF94] rounded-lg">
+                <select id="room-type-modal" name="categorie_id" class="w-full p-2 border border-[#C7AF94] rounded-lg">
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->typeChambre }}</option>
+                    @endforeach
+                </select>
+
+                <!-- <select id="room-type" class="w-full p-2 border border-[#C7AF94] rounded-lg">
                     <option value="1">Standard</option>
                     <option value="2">Deluxe</option>
                     <option value="3">Suite Prestige</option>
-                </select>
+                </select> -->
                 </div>
 
                 <div>
@@ -684,7 +690,7 @@
                 formData.append('prixNuit', document.querySelector('#room-price').value);
                 formData.append('capacite', document.querySelector('#room-capacity').value);
                 formData.append('status', document.querySelector('#room-status').value);
-                formData.append('categorie_id', 1); // à adapter dynamiquement
+                formData.append('categorie_id', document.querySelector('#room-type-modal').value);
 
                 // const imageInput = document.querySelector('#file-upload');
                 // if (imageInput && imageInput.files[0]) {

@@ -91,12 +91,20 @@
                 </button>
             </form> -->
             <form method="GET" action="{{ route('admin.rooms') }}" class="flex gap-2">
-                <select name="type" class="p-2 border border-[#C7AF94] rounded-lg">
+                <select id="room-type" name="type" class="w-full p-2 border border-[#C7AF94] rounded-lg">
+                    <option value="" {{ request('type') == '' ? 'selected' : '' }}>Toutes les chambres</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}" {{ request('type') == $cat->id ? 'selected' : '' }}>
+                            {{ $cat->typeChambre }}
+                        </option>
+                    @endforeach
+                </select>
+                <!-- <select name="type" class="p-2 border border-[#C7AF94] rounded-lg">
                     <option value="">Tous les types</option>
                     <option value="1" {{ request('type') == '1' ? 'selected' : '' }}>Standard</option>
                     <option value="2" {{ request('type') == '2' ? 'selected' : '' }}>Deluxe</option>
                     <option value="3" {{ request('type') == '3' ? 'selected' : '' }}>Suite Prestige</option>
-                </select>
+                </select> -->
                 <select name="status" class="p-2 border border-[#C7AF94] rounded-lg">
                     <option value="">Toutes disponibilités</option>
                     <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Disponible</option>

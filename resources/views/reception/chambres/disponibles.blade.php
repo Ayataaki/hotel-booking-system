@@ -104,7 +104,23 @@
                 >
             </div>
 
-          <div>
+            <div>
+                <label for="categorie" class="block text-sm font-medium mb-1">Catégorie</label>
+                <select
+                    name="categorie"
+                    id="categorie"
+                    class="w-full p-2 border border-[#C7AF94] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]"
+                >
+                    <option value="">Toutes</option>
+                    @foreach ($categories as $cat)
+                    <option value="{{ $cat->id }}" {{ request('categorie') == $cat->id ? 'selected' : '' }}>
+                        {{ $cat->typeChambre }}
+                    </option>
+                    @endforeach
+                </select>
+            </div>
+
+          <!-- <div>
             <label for="categorie" class="block text-sm font-medium mb-1">Catégorie</label>
             <select
               name="categorie"
@@ -116,7 +132,7 @@
                 <option value="2" {{ request('categorie') == 2 ? 'selected' : '' }}>Deluxe</option>
                 <option value="3" {{ request('categorie') == 3 ? 'selected' : '' }}>Suite Prestige</option>
             </select>
-          </div>
+          </div> -->
 
           <div>
             <label for="capacite" class="block text-sm font-medium mb-1">Capacité</label>

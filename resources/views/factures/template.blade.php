@@ -145,7 +145,15 @@
 
     <div class="total">
         <!-- <p>Montant total: <span class="amount">{{ number_format($facture->montant_total, 2) }} €</span></p> -->
-        <p>Montant total: <span class="amount">{{ number_format($facture->montant_soldePayer, 2) }} €</span></p>
+
+        <!-- Ce qui marche :  -->
+        <!-- <p>Montant total: <span class="amount">{{ number_format($facture->montant_soldePayer, 2) }} €</span></p> -->
+             @if($facture->montant_total == $facture->montant_soldePayer)
+                <p>Montant total: <span class="amount">{{ number_format($facture->montant_total, 2) }} €</span></p>
+            @else
+                <p>Montant supplémentaire (solde ajouté) : <span class="amount">{{ number_format($facture->montant_soldePayer, 2) }} €</span></p>
+            @endif
+
     </div>
 
     <div class="footer">
