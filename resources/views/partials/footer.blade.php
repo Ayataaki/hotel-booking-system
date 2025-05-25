@@ -2,7 +2,7 @@
 <footer class="bg-[#F3ECE3] text-gray-700 py-12 px-4 relative">
   <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-8 pt-8">
     <div class="flex-wrap justify-center items-center text-center">
-      <h3 class="text-xl font-bold font-['Playfair_Display'] text-[#6d4927] mb-4">LA MI CASA</h3>
+      <h3 class="text-xl font-bold font-['Playfair_Display'] text-[#6d4927] mb-4">MI CASA</h3>
       <p class="text-sm">Un havre de paix au cœur de la ville. Notre hôtel vous offre confort, élégance et services de qualité pour un séjour inoubliable.</p>
     </div>
 
@@ -67,6 +67,6 @@
   </div>
 
   <div class="mt-12 pt-8 border-t border-gray-300 text-center text-sm text-gray-600">
-    <p>&copy; {{ date('Y') }} LA MI CASA. Tous droits réservés.</p>
+    <p>&copy; {{ date('Y') }} MI CASA. Tous droits réservés.</p>
   </div>
 </footer>

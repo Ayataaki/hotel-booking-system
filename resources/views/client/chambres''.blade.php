@@ -512,7 +512,7 @@
   <div class="absolute inset-0 bg-black/50"></div>
   <div class="max-w-4xl mx-auto text-center relative z-10">
     <h2 class="text-3xl md:text-4xl font-bold mb-4" data-aos="fade-up">Réservez dès maintenant</h2>
-    <p class="text-lg mb-8" data-aos="fade-up" data-aos-delay="100">Profitez de nos offres spéciales et vivez une expérience inoubliable à LA MI CASA.</p>
+    <p class="text-lg mb-8" data-aos="fade-up" data-aos-delay="100">Profitez de nos offres spéciales et vivez une expérience inoubliable à Mi Casa.</p>
     <a href="{{ route('reservation') }}" class="inline-block px-8 py-4 bg-[#95714F] text-white rounded-lg hover:bg-[#6d4927] transition-colors duration-300 text-lg font-medium no-underline" data-aos="fade-up" data-aos-delay="200">
       Réserver votre chambre
     </a>

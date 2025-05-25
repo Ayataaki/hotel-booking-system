@@ -6,7 +6,7 @@
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
         <div class="p-6 md:p-8 bg-[#F3ECE3]">
             <h1 class="text-3xl font-bold text-[#6d4927]">Avis de nos clients</h1>
-            <p class="text-gray-600 mt-2 text-lg">Découvrez ce que nos clients pensent de leur séjour à LA MI CASA</p>
+            <p class="text-gray-600 mt-2 text-lg">Découvrez ce que nos clients pensent de leur séjour à Mi Casa</p>
         </div>
         
         <div class="p-6 md:p-8">

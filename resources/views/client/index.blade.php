@@ -10,7 +10,7 @@
 
     <div id="hero-content" class="relative z-10 text-center px-4 animated-fade">
       <h1 class="text-5xl md:text-7xl font-bold font-['Playfair_Display'] mb-6 text-[#6d4927] tracking-tight">
-        Bienvenue à <br><span class="italic">LA MI CASA</span>
+        Bienvenue à <br><span class="italic">Mi Casa</span>
       </h1>
       <p class="text-xl md:text-2xl text-[#6d4927] mb-10 max-w-2xl mx-auto">
         Où l'élégance rencontre le confort pour un séjour inoubliable
@@ -46,7 +46,7 @@
   <section class="py-20 bg-[#F8F7F4] relative overflow-hidden">
     <div class="max-w-6xl mx-auto px-4">
       <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold font-['Playfair_Display'] mb-4 text-[#6d4927] animated-fade">Pourquoi choisir LA MI CASA</h2>
+        <h2 class="text-3xl md:text-4xl font-bold font-['Playfair_Display'] mb-4 text-[#6d4927] animated-fade">Pourquoi choisir Mi Casa</h2>
         <p class="text-[#95714F] max-w-2xl mx-auto animated-fade">Nous combinons luxe, confort et hospitalité pour créer une expérience mémorable.</p>
       </div>
 

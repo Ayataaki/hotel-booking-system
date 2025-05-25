@@ -4,7 +4,7 @@
         @scroll.window="scrolled = (window.pageYOffset > 50)">
   <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
     <!-- Logo -->
-    <a href="{{ route('home') }}" class="text-2xl font-bold text-[#95714F]">LA MI CASA</a>
+    <a href="{{ route('home') }}" class="text-2xl font-bold text-[#95714F]">MI CASA</a>
 
     <!-- Navigation desktop (centré) -->
     <nav class="hidden md:flex space-x-6 justify-center flex-1">

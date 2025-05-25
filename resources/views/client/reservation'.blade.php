@@ -43,7 +43,7 @@
   <div class="absolute inset-0 bg-black/50"></div>
   <div class="relative z-10 text-center text-white px-4">
     <h1 class="text-5xl font-bold" data-aos="fade-up">Réservation</h1>
-    <p class="text-lg mt-2" data-aos="fade-up" data-aos-delay="100">Planifiez votre séjour chez LA MI CASA</p>
+    <p class="text-lg mt-2" data-aos="fade-up" data-aos-delay="100">Planifiez votre séjour chez Mi Casa</p>
   </div>
 </section>
 

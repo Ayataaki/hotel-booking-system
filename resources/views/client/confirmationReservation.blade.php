@@ -14,7 +14,7 @@
                     </svg>
                 </div>
                 <h1 class="text-3xl font-bold text-[#6d4927]">Réservation confirmée!</h1>
-                <p class="text-gray-600 mt-2">Merci pour votre réservation chez LA MI CASA</p>
+                <p class="text-gray-600 mt-2">Merci pour votre réservation chez Mi Casa</p>
             </div>
 
             <div class="bg-[#F3ECE3] rounded-lg p-6 mb-8">

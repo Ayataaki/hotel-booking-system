@@ -50,7 +50,7 @@
       <div>
         <div class="flex items-center justify-between mb-1">
           <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
-          <a href="#" class="text-xs text-[#95714F] hover:text-[#6d4927] no-underline hover:underline transition-colors duration-300">Mot de passe oublié?</a>
+{{--           <a href="#" class="text-xs text-[#95714F] hover:text-[#6d4927] no-underline hover:underline transition-colors duration-300">Mot de passe oublié?</a> --}}
         </div>
         <div class="relative">
           <input type="password" id="password" name="password" placeholder="••••••••" required
@@ -71,17 +71,17 @@
         @enderror
       </div>
 
-      <div class="flex items-center">
+{{--       <div class="flex items-center">
         <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-[#95714F] rounded border-gray-300 focus:ring-[#95714F]">
         <label for="remember" class="ml-2 block text-sm text-gray-700">Se souvenir de moi</label>
-      </div>
+      </div> --}}
 
       <button type="submit" class="w-full py-3 px-4 bg-[#95714F] text-white rounded-lg font-medium hover:bg-[#6d4927] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#95714F] transform hover:-translate-y-0.5 transition-all duration-300">
         Se connecter
       </button>
     </form>
   
-    <div class="mt-8 text-center">
+{{--     <div class="mt-8 text-center">
       <p class="text-gray-600 text-sm">Ou connectez-vous avec</p>
       <div class="flex justify-center space-x-4 mt-4">
         <a href="#" class="flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -100,7 +100,7 @@
           </svg>
         </a>
       </div>
-    </div>
+    </div> --}}
 
     <div class="mt-8 text-center">
       <p class="text-gray-600 text-sm">

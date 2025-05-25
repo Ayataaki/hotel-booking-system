@@ -41,7 +41,7 @@ class StripeController extends Controller
             $charge = Charge::create([
                 'amount' => $request->amount * 100, // Stripe utilise les centimes
                 'currency' => 'eur',
-                'description' => 'Paiement pour LA MI CASA',
+                'description' => 'Paiement pour Mi Casa',
                 'source' => $request->stripeToken,
                 'metadata' => [
                     'user_id' => Auth::id() ?? 'guest',

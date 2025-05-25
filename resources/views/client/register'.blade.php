@@ -42,7 +42,7 @@
   <div class="bg-white/90 backdrop-blur-md max-w-xl w-full rounded-2xl shadow-2xl p-8 md:p-10 relative z-10 fade-in">
     <div class="text-center mb-8">
       <h2 class="text-3xl font-bold text-[#6d4927] mb-2">Créer un compte</h2>
-      <p class="text-gray-600">Rejoignez LA MI CASA pour bénéficier d'offres exclusives</p>
+      <p class="text-gray-600">Rejoignez Mi Casa pour bénéficier d'offres exclusives</p>
     </div>
 
     <!--<form id="register-form" method="POST" action="{{-- route('register') --}}" class="space-y-6">-->

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ config('app.name', 'LA MI CASA') }} - @yield('title', 'Accueil')</title>
+  <title>{{ config('app.name', 'Mi Casa') }} - @yield('title', 'Accueil')</title>
   <link rel="stylesheet" href="{{ asset('css/output.css') }}">
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />

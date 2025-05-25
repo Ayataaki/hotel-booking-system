@@ -3,7 +3,7 @@
     <div class="flex flex-col h-full">
       <div class="p-6">
         <div class="flex items-center justify-between mb-2">
-          <h1 class="text-2xl font-bold text-[#6d4927]">LA MI CASA</h1>
+          <h1 class="text-2xl font-bold text-[#6d4927]">Mi Casa</h1>
         </div>
         <p class="text-sm mb-8">Panel d'administration</p>
 

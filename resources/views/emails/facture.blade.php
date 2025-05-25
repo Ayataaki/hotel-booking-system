@@ -38,12 +38,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Votre facture LA MI CASA</h1>
+            <h1>Votre facture Mi Casa</h1>
         </div>
         
         <p>Bonjour,</p>
         
-        <p>Nous vous remercions pour votre réservation chez LA MI CASA. Veuillez trouver ci-joint votre facture n°{{ $facture->numero_facture }}.</p>
+        <p>Nous vous remercions pour votre réservation chez Mi Casa. Veuillez trouver ci-joint votre facture n°{{ $facture->numero_facture }}.</p>
         
         <p><strong>Détails de la réservation:</strong></p>
         <ul>
@@ -58,13 +58,13 @@
             <a href="{{ route('client.reservations') }}" class="button">Voir mes réservations</a>
         </center>
         
-        <p>Nous nous réjouissons de vous accueillir prochainement à LA MI CASA.</p>
+        <p>Nous nous réjouissons de vous accueillir prochainement à Mi Casa.</p>
         
         <p>Cordialement,<br>
-        L'équipe LA MI CASA</p>
+        L'équipe Mi Casa</p>
         
         <div class="footer">
-            <p>LA MI CASA - Hôtel & Spa<br>
+            <p>Mi Casa - Hôtel & Spa<br>
             123 Avenue des Palmiers, 40000 Marrakech, Maroc<br>
             Tel: +212 5 00 40 67 89 | Email: contact@lamicasa.com</p>
         </div>

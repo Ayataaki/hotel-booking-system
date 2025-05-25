@@ -42,7 +42,7 @@
   <div class="bg-white/90 backdrop-blur-md max-w-xl w-full rounded-2xl shadow-2xl p-8 md:p-10 relative z-10 fade-in">
     <div class="text-center mb-8">
       <h2 class="text-3xl font-bold text-[#6d4927] mb-2">Créer un compte</h2>
-      <p class="text-gray-600">Rejoignez LA MI CASA pour bénéficier d'offres exclusives</p>
+      <p class="text-gray-600">Rejoignez Mi Casa pour bénéficier d'offres exclusives</p>
     </div>
 
     <form id="register-form" method="POST" action="{{ route('register.post') }}" class="space-y-6">
@@ -128,14 +128,14 @@
       </div>
 
 
-      <div>
+      {{-- <div>
         <label for="newsletter" class="flex items-start">
           <input type="checkbox" id="newsletter" name="newsletter" class="mt-1 h-4 w-4 text-[#95714F] rounded border-gray-300 focus:ring-[#95714F]">
           <span class="ml-2 block text-sm text-gray-700">
             Je souhaite recevoir des offres spéciales et des promotions par email
           </span>
         </label>
-      </div>
+      </div> --}}
 
       <div class="bg-[#F3ECE3] rounded-lg p-6">
         <div class="space-y-4">
@@ -155,9 +155,9 @@
         </div>
       </div>
 
-      <p class="text-sm text-gray-600">
+      {{-- <p class="text-sm text-gray-600">
         En créant un compte, vous acceptez que vos données personnelles soient traitées conformément à notre politique de confidentialité. Vous pouvez exercer vos droits d'accès, de rectification et de suppression à tout moment.
-      </p>
+      </p> --}}
 
       <div class="flex justify-center">
         <button type="submit" class="px-6 py-3 bg-[#95714F] text-white rounded-lg font-medium focus:outline-none hover:bg-[#6d4927] transition-colors duration-300 w-full md:w-auto">

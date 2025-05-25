@@ -63,7 +63,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ public_path('images/logo.png') }}" alt="LA MI CASA" class="logo">
+        <img src="{{ public_path('images/logo.png') }}" alt="Mi Casa" class="logo">
         <h1>Facture</h1>
     </div>
 
@@ -149,7 +149,7 @@
     </div>
 
     <div class="footer">
-        <p>LA MI CASA - Hôtel & Spa<br>
+        <p>Mi Casa - Hôtel & Spa<br>
         123 Avenue des Palmiers, 40000 Marrakech, Maroc<br>
         Tel: +212 5 00 40 67 89 | Email: contact@lamicasa.com</p>
         <p>Merci pour votre confiance!</p>

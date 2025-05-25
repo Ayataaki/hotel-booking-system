@@ -22,7 +22,7 @@ class FactureEmail extends Mailable
     
     public function build()
     {
-        return $this->subject('Votre facture LA MI CASA #' . $this->facture->numero_facture)
+        return $this->subject('Votre facture Mi Casa #' . $this->facture->numero_facture)
                     ->view('emails.facture')
                     ->attach(storage_path('app/public/' . $this->pdfPath), [
                         'as' => 'facture-' . $this->facture->numero_facture . '.pdf',

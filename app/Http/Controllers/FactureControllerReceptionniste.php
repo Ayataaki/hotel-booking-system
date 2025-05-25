@@ -220,7 +220,7 @@ class FactureControllerReceptionniste extends Controller
                     <div class="info-block">
                         <h4>HÔTEL</h4>
                         <p>
-                            <strong>LA MI CASA</strong><br>
+                            <strong>Mi Casa</strong><br>
                             Avenue Abderrahim Bouabid, Agdal<br>
                             75000 Rabat, Maroc<br>
                             Email: contact@lamicasa.com<br>
@@ -328,11 +328,11 @@ class FactureControllerReceptionniste extends Controller
                 </div>
 
                 <div>
-                    Merci d'avoir choisi La Mi Casa pour votre séjour!
+                    Merci d'avoir choisi Mi Casa pour votre séjour!
                 </div>
 
                 <div>
-                    <p>LA MI CASA - Avenue Abderrahim Bouabid, Agdal - 75000 Rabat, Maroc</p>
+                    <p>Mi Casa - Avenue Abderrahim Bouabid, Agdal - 75000 Rabat, Maroc</p>
                     <p>SIRET: 123 456 789 00012 - TVA: MA 12 345 678 90</p>
                 </div>
             </div>
