@@ -400,7 +400,7 @@ function servicesManager() {
       .then(response => response.json())
       .then(data => {
         this.addServiceModal = false;
-        alert('✅ Service ajouté avec succès!');
+        // alert('✅ Service ajouté avec succès!');
         window.location.reload();
       })
       .catch(error => {
@@ -427,7 +427,7 @@ function servicesManager() {
       .then(response => response.json())
       .then(data => {
         this.editServiceModal = false;
-        alert('✅ Service modifié avec succès!');
+        // alert('✅ Service modifié avec succès!');
         window.location.reload();
       })
       .catch(error => {
@@ -453,7 +453,7 @@ function servicesManager() {
       .then(response => response.json())
       .then(data => {
         this.deleteServiceModal = false;
-        alert('✅ Service supprimé avec succès!');
+        // alert('✅ Service supprimé avec succès!');
         window.location.reload();
       })
       .catch(error => {

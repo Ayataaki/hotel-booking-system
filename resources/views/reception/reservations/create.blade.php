@@ -50,8 +50,17 @@
     @include('reception.partials.header', ['pageTitle' => 'Nouvelle réservation'])
 
     <div class="p-6 md:p-8 pt-20 md:pt-8">
+        <script>
+            window.reservationData = {
+                hasServices: {{ $hasServices ? 'true' : 'false' }},
+                selectedServices: @json($selectedServices),
+                reservationExists: {{ $reservationData ? 'true' : 'false' }}
+            };
+        </script>
       <!-- <form method="POST" action="{{ route('reception.reservations.store') }}" x-data="reservationForm()" class="space-y-8"> -->
+      <!-- <form method="POST"  action="{{ route('reception.reservations.store') }}" x-data="wantsServices: false, reservationForm()" x-init="init()" class="space-y-8"> -->
       <form method="POST"  action="{{ route('reception.reservations.store') }}" x-data="reservationForm()" x-init="init()" class="space-y-8">
+      <!-- <form method="POST"  action="{{ route('reception.reservations.store') }}" x-data="reservationForm()" x-init="init()" class="space-y-8"> -->
       <!-- <form method="POST" action="{{ route('reception.reservations.store') }}" x-data="reservationForm()" x-init="init()" @submit="submitForm" class="space-y-8"> -->
         @csrf
 
@@ -154,7 +163,7 @@
                 <input
                   type="text"
                   id="client_search"
-                  placeholder="Nom, email ou téléphone"
+                  placeholder="CIN ou passeport"
                   x-model="searchQuery"
                   @input="searchClients"
                   class="w-full p-2 border border-[#C7AF94] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#95714F]"
@@ -381,7 +390,62 @@
 
         </div>
 
-        <!-- Étape 3: Résumé et paiement -->
+        <!-- <div class="bg-white rounded-xl shadow-md p-6" x-data="{ wantsServices: false }" x-init="initServices()"> -->
+            <!-- <div class="bg-white rounded-xl shadow-md p-6"> -->
+        <!-- <div class="bg-white rounded-xl shadow-md p-6" x-data="{ wantsServices: window.reservationData.hasServices === true }" x-init="initServices()"> -->
+        <div class="bg-white rounded-xl shadow-md p-6" x-data="{ wantsServices: window.reservationData.hasServices === true }">
+            <h3 class="text-lg font-bold text-[#6d4927] mb-6">Services supplémentaires</h3>
+
+            <label class="inline-flex items-center mb-4">
+                <!-- <input type="checkbox" x-model="wantsServices" class="form-checkbox text-[#95714F]"> -->
+                <input type="checkbox"  x-model="wantsServices" class="form-checkbox text-[#95714F]">
+                <span class="ml-2">Souhaitez-vous ajouter des services supplémentaires ?</span>
+            </label>
+
+            <div x-show="wantsServices" class="mt-4 space-y-2">
+                @foreach($services as $service)
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox"
+                            name="services[]"
+                            value="{{ $service->id }}"
+                            data-tarif="{{ $service->tarif }}"
+                            x-model="servicesSelectionnes"
+                            :checked="servicesSelectionnes.includes({{ $service->id }})"
+                            @change="calculerPrixTotal()"
+                            class="form-checkbox text-[#95714F]">
+                            <!-- x-init="checkIfSelected({{ $service->id }})"> -->
+                        <span>{{ $service->libelle }} ({{ $service->tarif }} €)</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+        <!-- <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-[#6d4927] mb-6">Services supplémentaires</h3>
+
+            <label class="inline-flex items-center mb-4">
+                <input type="checkbox" x-model="wantsServices" class="form-checkbox text-[#95714F]">
+                <span class="ml-2">Souhaitez-vous ajouter des services supplémentaires ?</span>
+            </label>
+
+            <div x-show="wantsServices" class="mt-4 space-y-2">
+                @foreach($services as $service)
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox"
+                        name="services[]"
+                        value="{{ $service->id }}"
+                        data-tarif="{{ $service->tarif }}"
+                        x-model="servicesSelectionnes"
+                        @change="calculerPrixTotal()"
+                        class="form-checkbox text-[#95714F]">
+                    <span>{{ $service->libelle }} ({{ $service->tarif }} €)</span>
+                </label>
+                @endforeach
+            </div>
+        </div> -->
+
+
+
+        <!-- Étape 4: Résumé et paiement -->
         <div class="bg-white rounded-xl shadow-md p-6">
           <h3 class="text-lg font-bold text-[#6d4927] mb-6">Résumé et paiement</h3>
 
@@ -394,16 +458,20 @@
               <p class="text-sm text-gray-600 mb-2" x-show="chambreDetails.NumCh">
                 Chambre: <span x-text="'N°' + chambreDetails.NumCh"></span>
               </p>
+              <p class="text-sm font-medium text-[#6d4927]" x-show="totalServSupp > 0">
+                Total des services supplémentaires : <span x-text="totalServSupp + '€'"></span>
+              </p>
               <p class="text-sm font-medium text-[#6d4927]">
                 Prix total: <span x-text="prixTotal + '€'"></span>
               </p>
+
               <!-- <p class="text-sm font-bold text-red-600" x-show="reservationId">
                 Prix supplémentaire: <span x-text="(duree - dureeOriginale) * chambreDetails.prixNuit + '€'"></span>
               </p> -->
               <!-- <p class="text-sm font-medium text-red-700" x-show="montantAAjouter > 0">
                 Montant à payer maintenant (jours ajoutés) : <span x-text="montantAAjouter + '€'"></span>
               </p> -->
-              <p class="text-sm font-medium text-red-700" x-show="montantAAjouter > 0">
+              <p class="text-sm font-medium text-red-700" x-show="reservationId && montantAAjouter > 0">
                 Montant à payer maintenant (jours ajoutés) : <span x-text="montantAAjouter + '€'"></span>
               </p>
 
@@ -456,6 +524,8 @@
             ></textarea>
           </div> -->
 
+
+
           <div class="flex justify-end">
             <button type="submit" class="px-6 py-3 bg-[#95714F] text-white rounded-lg hover:bg-[#6d4927] transition-colors">
               Confirmer la réservation
@@ -471,7 +541,10 @@
 
 
             <!-- <input type="hidden" name="soldePayer" x-ref="soldePayer" value="reservationId ? montantAAjouter : prixTotal"> -->
-            <input type="hidden" name="soldePayer" x-ref="soldePayer">
+            <!-- <input type="hidden" name="soldePayer" x-ref="soldePayer"> -->
+
+            <!-- <input type="hidden" name="soldePayer" x-ref="totalServSupp"> -->
+            <input type="hidden" name="soldePayer" :value="reservationId ? montantAAjouter : prixTotal">
 
 
 
@@ -487,7 +560,7 @@
        x-show="sidebarOpen"
        @click="sidebarOpen = false"></div>
 
-  <script>
+<script>
     function reservationForm() {
       return {
         clientType: 'nouveau',
@@ -501,6 +574,8 @@
         searchResults: [],
         selectedClient: {},
         reservationId: "{{ request('reservation') ?? '' }}", // C’est ici qu’on récupère l'ID via l’URL
+        servicesSelectionnes: [],
+        totalServSupp: 0,
 
         init() {
           //if (this.chambreId) {
@@ -511,35 +586,44 @@
           //}
 
 
-       @if(isset($reservationData) && isset($clientData))
-            this.clientType = 'existant';
-            this.selectedClient = {
-                id: "{{ $clientData->id }}",
-                nom: "{{ $clientData->nom }}",
-                prenom: "{{ $clientData->prenom }}",
-                telephone: "{{ $clientData->telephone }}",
-                pays: "{{ $clientData->pays }}",
-                region: "{{ $clientData->region }}"
-            };
-            this.searchQuery = this.selectedClient.nom + ' ' + this.selectedClient.prenom;
-            this.chambreId = "{{ optional(optional($reservationData->historique)->chambre)->id }}";
-            this.dateDeb = "{{ $reservationData->dateDeb->format('Y-m-d') }}";
-            this.dateFin = "{{ $reservationData->dateFin->format('Y-m-d') }}";
-            this.oldDateFin = "{{ $reservationData->dateFin->format('Y-m-d') }}";
-            this.oldTotal = {{ $reservationData->totalPayer ?? 0 }};
-            this.getChambreDetails();
-            this.calculerDuree();
-            this.prixOriginal = {{ $reservationData->totalPayer ?? 0 }};
-            this.montantAAjouter = this.prixTotal - this.prixOriginal;
-        @else
-            // Cas création => Appelle les fonctions manuellement si données présentes
-            if (this.dateDeb && this.dateFin) {
-            this.calculerDuree();
-            }
-            if (this.chambreId) {
-            this.getChambreDetails();
-            }
-        @endif
+            @if(isset($reservationData) && isset($clientData))
+                    this.clientType = 'existant';
+                    this.selectedClient = {
+                        id: "{{ $clientData->id }}",
+                        nom: "{{ $clientData->nom }}",
+                        prenom: "{{ $clientData->prenom }}",
+                        telephone: "{{ $clientData->telephone }}",
+                        pays: "{{ $clientData->pays }}",
+                        region: "{{ $clientData->region }}"
+                    };
+                    this.searchQuery = this.selectedClient.nom + ' ' + this.selectedClient.prenom;
+                    this.chambreId = "{{ optional(optional($reservationData->historique)->chambre)->id }}";
+                    this.dateDeb = "{{ $reservationData->dateDeb->format('Y-m-d') }}";
+                    this.dateFin = "{{ $reservationData->dateFin->format('Y-m-d') }}";
+                    this.oldDateFin = "{{ $reservationData->dateFin->format('Y-m-d') }}";
+                    this.oldTotal = {{ $reservationData->totalPayer ?? 0 }};
+                    this.getChambreDetails();
+                    this.calculerDuree();
+                    this.prixOriginal = {{ $reservationData->totalPayer ?? 0 }};
+                    this.montantAAjouter = this.prixTotal - this.prixOriginal;
+
+                    this.servicesSelectionnes = window.reservationData.selectedServices || [];
+
+                    if (this.servicesSelectionnes.length > 0) {
+                        this.wantsServices = true; // coche automatiquement le bouton "Souhaitez-vous ajouter des services"
+                    }
+
+
+
+            @else
+                    // Cas création => Appelle les fonctions manuellement si données présentes
+                    if (this.dateDeb && this.dateFin) {
+                    this.calculerDuree();
+                    }
+                    if (this.chambreId) {
+                    this.getChambreDetails();
+                    }
+            @endif
 
 
 
@@ -645,27 +729,77 @@
 
         //   this.prixTotal = this.duree * this.chambreDetails.prixNuit;
         // },
-        calculerPrixTotal() {
+        // calculerPrixTotal() {
 
+        //     if (!this.duree || !this.chambreDetails.prixNuit) return;
+
+        //     this.prixTotal = this.duree * this.chambreDetails.prixNuit;
+
+        //     // 🔁 Comparer avec l'ancienne date de fin
+        //     const nouvelleFin = new Date(this.dateFin);
+        //     const ancienneFin = new Date(this.oldDateFin);
+
+        //     if (nouvelleFin > ancienneFin) {
+        //         const joursAjoutes = Math.ceil((nouvelleFin - ancienneFin) / (1000 * 60 * 60 * 24));
+        //         this.montantAAjouter = joursAjoutes * this.chambreDetails.prixNuit;
+        //     } else {
+        //         this.montantAAjouter = 0;
+        //     }
+
+        //     // 🔥 AJOUT ESSENTIEL 🔥
+        //     document.querySelector('input[name="soldePayer"]').value = this.reservationId ? this.montantAAjouter : this.prixTotal;
+
+        // },
+
+        calculerPrixTotal() {
             if (!this.duree || !this.chambreDetails.prixNuit) return;
 
-            this.prixTotal = this.duree * this.chambreDetails.prixNuit;
+            const prixChambre = this.duree * this.chambreDetails.prixNuit;
 
-            // 🔁 Comparer avec l'ancienne date de fin
+            // ✅ Récupérer tous les checkboxes cochés
+            const checkboxes = document.querySelectorAll('input[name="services[]"]:checked');
+
+            // ✅ Calcul du total des tarifs réels via les attributs data-tarif
+            const totalServices = Array.from(checkboxes).reduce((sum, checkbox) => {
+                return sum + parseFloat(checkbox.dataset.tarif || 0);
+            }, 0);
+
+            this.totalServSupp = totalServices;
+            this.prixTotal = prixChambre + totalServices;
+
             const nouvelleFin = new Date(this.dateFin);
             const ancienneFin = new Date(this.oldDateFin);
-
             if (nouvelleFin > ancienneFin) {
                 const joursAjoutes = Math.ceil((nouvelleFin - ancienneFin) / (1000 * 60 * 60 * 24));
-                this.montantAAjouter = joursAjoutes * this.chambreDetails.prixNuit;
+                this.montantAAjouter = joursAjoutes * this.chambreDetails.prixNuit + totalServices;
             } else {
-                this.montantAAjouter = 0;
+                this.montantAAjouter = totalServices;
             }
 
-            // 🔥 AJOUT ESSENTIEL 🔥
             document.querySelector('input[name="soldePayer"]').value = this.reservationId ? this.montantAAjouter : this.prixTotal;
-
         },
+
+        // calculerPrixTotal() {
+        //     if (!this.duree || !this.chambreDetails.prixNuit) return;
+
+        //     const prixChambre = this.duree * this.chambreDetails.prixNuit;
+        //     const totalServices = this.servicesSelectionnes.reduce((a, b) => a + Number(b), 0);
+        //     this.prixTotal = prixChambre + totalServices;
+        //     this.totalServSupp = totalServices;
+
+        //     // Mise à jour solde à payer
+        //     const nouvelleFin = new Date(this.dateFin);
+        //     const ancienneFin = new Date(this.oldDateFin);
+        //     if (nouvelleFin > ancienneFin) {
+        //         const joursAjoutes = Math.ceil((nouvelleFin - ancienneFin) / (1000 * 60 * 60 * 24));
+        //         this.montantAAjouter = joursAjoutes * this.chambreDetails.prixNuit + totalServices;
+        //     } else {
+        //         this.montantAAjouter = totalServices;
+        //     }
+
+        //     document.querySelector('input[name="soldePayer"]').value = this.reservationId ? this.montantAAjouter : this.prixTotal;
+        // },
+
 
         searchClients() {
           if (this.searchQuery.length < 2) {
@@ -698,63 +832,6 @@
       }
     }
   </script>
-  <script>
-// function reservationForm() {
-//   return {
-//     clientType: 'nouveau',
-//     dateDeb: "{{ request()->get('date_debut', '') }}",
-//     dateFin: "{{ request()->get('date_fin', '') }}",
-//     duree: 0,
-//     chambreId: "{{ request()->get('chambre', '') }}",
-//     chambreDetails: {},
-//     prixTotal: 0,
-//     searchQuery: '',
-//     searchResults: [],
-//     selectedClient: {},
 
-//     init() {
-//       if (this.chambreId) {
-//         this.getChambreDetails();
-//       }
-//       if (this.dateDeb && this.dateFin) {
-//         this.calculerDuree();
-//       }
-//     },
-
-//     submitForm(event) {
-//       event.preventDefault();
-
-//       const form = event.target;
-//       const formData = new FormData(form);
-
-//       fetch(form.action, {
-//         method: 'POST',
-//         body: formData
-//       })
-//       .then(response => response.json())
-//       .then(data => {
-//         if (data.success) {
-//           // Afficher une alerte de succès
-//           alert('SUCCÈS: ' + data.message + '\n\nRéservation ID: ' + data.reservation_id + '\nHistorique ID: ' + data.historique_id);
-
-//           // Rediriger après 2 secondes
-//           setTimeout(() => {
-//             window.location.href = data.redirect_url;
-//           }, 2000);
-//         } else {
-//           // Afficher une alerte d'erreur
-//           alert('ERREUR: ' + data.message + '\n\nDétails: ' + JSON.stringify(data.error_details, null, 2));
-//         }
-//       })
-//       .catch(error => {
-//         console.error('Erreur:', error);
-//         alert('Erreur de réseau: ' + error);
-//       });
-//     },
-
-//     // ... restant de vos méthodes Alpine.js ...
-//   }
-// }
-</script>
 </body>
 </html>

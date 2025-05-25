@@ -120,25 +120,27 @@
             </tbody>
         </table>
 
-        @if(count($reservation->services) > 0)
-        <h4>Services additionnels</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Service</th>
-                    <th>Prix</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($reservation->services as $service)
-                <tr>
-                    <td>{{ $service->libelle }}</td>
-                    <td>{{ number_format($service->tarif, 2) }} €</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        @if(count($services) > 0)
+            <h4>Services additionnels</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Prix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($services as $service)
+                        <tr>
+                            <td>{{ $service->libelle }}</td>
+                            <td>{{ number_format($service->tarif, 2) }} €</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <p><strong>Total services :</strong> {{ number_format($services->sum('tarif'), 2) }} €</p>
         @endif
+
     </div>
 
     <div class="total">

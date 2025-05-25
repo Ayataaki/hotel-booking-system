@@ -9,9 +9,11 @@ use Illuminate\Routing\Controller;
 use App\Models\Client;
 use App\Models\Historique;
 use App\Models\Paiement;
+use App\Models\Posseder;
 use Carbon\Carbon;
 // use App\Http\Controllers\Facture;
 use App\Models\Facture;
+use App\Models\Supplementaire;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -39,6 +41,7 @@ class ReceptionController extends Controller
     {
         // Chambres disponibles aujourd'hui (status = 1)
         $chambresDisponibles = Chambre::where('status', 1)->count();
+        $services = Supplementaire::all(); // tous les services supplémentaires
 
         // Arrivées du jour
         $today = Carbon::today();
@@ -227,8 +230,14 @@ class ReceptionController extends Controller
     {
         $chambresDisponibles = Chambre::all();
 
+        $services = Supplementaire::all(); // tous les services supplémentaires
+
         $reservationData = null;
         $clientData = null;
+        $clientData = null;
+        $selectedServices = [];
+        $hasServices = false;
+
 
         if ($request->has('reservation')) {
             $reservation = Reservation::with('client', 'historique.chambre')->find($request->reservation);
@@ -236,10 +245,17 @@ class ReceptionController extends Controller
             if ($reservation) {
                 $reservationData = $reservation;
                 $clientData = $reservation->client;
+                // Récupérer les services liés si l'historique existe
+                if ($reservation->historique && $reservation->historique->services) {
+                    $selectedServices = $reservationData && $reservationData->historique && $reservationData->historique->services ? $reservationData->historique->services->pluck('id')->toArray() : [];
+                    $hasServices = count($selectedServices) > 0;
+                }
+
             }
         }
 
-        return view('reception.reservations.create', compact('chambresDisponibles', 'reservationData', 'clientData'));
+        // return view('reception.reservations.create', compact('chambresDisponibles', 'reservationData', 'clientData', 'services', 'selectedServices', 'hasServices'));
+        return view('reception.reservations.create', compact('chambresDisponibles', 'reservationData', 'clientData', 'services', 'selectedServices', 'hasServices'));
     }
 
     // Pour rechercher le client existants dans la page /reception/reservations/create.
@@ -761,6 +777,15 @@ class ReceptionController extends Controller
 
             $prixTotal = $duree * $chambre->prixNuit;
 
+            // Ajouter les services supplémentaires si présents
+            $totalServices = 0;
+            if ($request->has('services')) {
+                $totalServices = Supplementaire::whereIn('id', $request->services)->sum('tarif');
+            }
+
+            $prixTotal += $totalServices;
+
+
             Log::info('Infos réservation', [
                 'chambre_id' => $chambre->id,
                 'dateDeb' => $dateDeb,
@@ -837,6 +862,20 @@ class ReceptionController extends Controller
                 'reservation_id'=>$reservation->id,
                 'datePa'=>now(),
             ]);
+
+            if ($request->has('services')) {
+                foreach ($request->services as $serviceId) {
+                    // DB::table('posseders')->insert([
+                    //     'reservation_id' => $reservation->id,
+                    //     'supplementaire_id' => $serviceId,
+                    // ]);
+                    Posseder::create([
+                        'reservation_id' => $reservation->id,
+                        'supplementaire_id' => $serviceId,
+                    ]);
+                }
+            }
+
 
             Log::info('Réservation créée', ['id' => $reservation->id]);
 
