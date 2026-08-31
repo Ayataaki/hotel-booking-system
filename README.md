@@ -1,67 +1,64 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+#  Mi Casa — Application Web de Gestion Hôtelière
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Mi Casa** est une application web moderne de gestion hôtelière et de réservation de chambres en ligne. Développée dans le cadre du projet S2 du département *Web and Mobile Engineering* (Filière *Data and Software Sciences*) à l'**ENSIAS**, cette plateforme simplifie la réservation pour les clients tout en offrant un outil complet de gestion administrative pour le personnel hôtelier.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+##  Contexte & Objectifs
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+L'objectif principal du projet est de digitaliser et d'optimiser le processus de réservation d'un établissement hôtelier :
+* **Côté Client :** Faciliter la recherche de chambres disponibles, la réservation en ligne, le paiement, et la consultation d'historique ou le dépôt d'avis.
+* **Côté Personnel :** Offrir un tableau de bord permettant la gestion des chambres, la réservation directe en réception, la facturation et le suivi du chiffre d'affaires.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+##  Profils Utilisateurs & Fonctionnalités
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+L'application prend en charge un **Contrôle d'Accès Basé sur les Rôles (RBAC)** articulé autour de 3 profils distincts :
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 1.  Client (Voyageur)
+* **Consultation :** Recherche des chambres disponibles selon les dates de séjour.
+* **Réservation :** Prise de réservation en ligne avec gestion des options / services supplémentaires.
+* **Paiement & Facturation :** Paiement en ligne (Carte / Cash) et génération de factures / reçus en PDF.
+* **Avis :** Publication de commentaires et de notes sur les séjours passés.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 2.  Réceptionniste
+* **Gestion des Réservations :** Création, modification et annulation de réservations pour les clients physiques.
+* **Gestion du Planning :** Consultation de l'historique d'occupation des chambres.
+* **Services :** Attribution des services supplémentaires aux réservations.
+* **Facturation :** Édition et impression des factures.
 
-## Laravel Sponsors
+### 3.  Administrateur
+* **Tableau de Bord :** Suivi des statistiques globales et visualisation du Chiffre d'Affaires (CA).
+* **Gestion du Personnel :** Création et administration des comptes réceptionnistes.
+* **Gestion du Parc Hôtelier :** Ajout, modification, tarification et suppression des chambres et catégories.
+* **Gestion des Prestations :** Administration du catalogue de services supplémentaires.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+##  Architecture & Conception
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Le projet repose sur un modèle d'architecture logicielle **MVC (Modèle-Vue-Contrôleur)** garantissant la modularité, la maintenabilité et la séparation des responsabilités.
 
-## Contributing
+* **Diagramme de Cas d'Utilisation :** Modélisation des interactions selon le rôle (Client, Réceptionniste, Admin).
+* **Modèle Conceptuel de Données (MCD) / Modèle Relational :**
+  * Entités clés : `Utilisateur`, `Client`, `Réceptionniste`, `Administrateur`, `Chambre`, `Catégorie`, `Réservation`, `Paiement`, `Facture`, `Supplémentaire`, `Commentaire`.
+* **Design Pattern MVC :** Séparation stricte entre les vues (HTML/CSS/Bootstrap), la logique métier (Contrôleurs), et l'accès aux données (Modèles SGBD).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+##  Stack Technique
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+* **Langage Back-End :** PHP (Architecture MVC)
+* **Base de Données :** MySQL / SGBD Relationnel
+* **Front-End :** HTML5, CSS3, JavaScript, Bootstrap
+* **Génération de Documents :** Module PHP pour la création de factures PDF
+* **Conception & UML :** Diagrammes de cas d'utilisation, de classes, de séquence et MCD
 
-## Security Vulnerabilities
+---
+##  Équipe du Projet
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Projet réalisé dans le cadre du cursus d'ingénieur à l'**ENSIAS** (Université Mohammed V de Rabat) :
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-"# hotel" 
+* **Aya TAKI**
+* **Anas BENAMARA**
